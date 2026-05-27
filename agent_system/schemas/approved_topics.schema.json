@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Approved Topics",
+  "type": "object",
+  "required": ["brief_id", "approved_candidates"],
+  "properties": {
+    "brief_id": {"type": "string"},
+    "approved_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["candidate_id", "decision"],
+        "properties": {
+          "candidate_id": {"type": "string"},
+          "decision": {"type": "string", "enum": ["approved", "needs_adjustment", "parked", "rejected"]},
+          "pavel_notes": {"type": "string"},
+          "priority": {"type": "string"},
+          "desired_publish_date": {"type": "string"}
+        }
+      }
+    },
+    "manual_topics_added_by_pavel": {"type": "array", "items": {"type": "string"}}
+  }
+}
+

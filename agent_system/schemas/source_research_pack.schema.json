@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Source Research Pack",
+  "type": "object",
+  "required": ["brief_id", "source_cards", "research_notes"],
+  "properties": {
+    "brief_id": {"type": "string"},
+    "research_period": {"type": "string"},
+    "source_cards": {
+      "type": "array",
+      "items": {"$ref": "./source_card.schema.json"}
+    },
+    "research_notes": {"type": "array", "items": {"type": "string"}},
+    "open_questions": {"type": "array", "items": {"type": "string"}}
+  }
+}
+

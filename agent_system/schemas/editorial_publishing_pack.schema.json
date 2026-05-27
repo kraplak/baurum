@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Editorial Publishing Pack",
+  "type": "object",
+  "required": ["candidate_id", "decision", "final_telegram_text", "approval_message", "google_sheets_row"],
+  "properties": {
+    "candidate_id": {"type": "string"},
+    "decision": {"type": "string", "enum": ["ready_for_review", "needs_rewrite"]},
+    "final_title": {"type": "string"},
+    "final_telegram_text": {"type": "string"},
+    "source_url": {"type": "string"},
+    "source_micro_summary": {"type": "string"},
+    "approval_message": {"type": "string"},
+    "notion_payload": {"type": "object"},
+    "google_sheets_row": {"type": "object"},
+    "editor_notes": {"type": "array", "items": {"type": "string"}}
+  }
+}
+

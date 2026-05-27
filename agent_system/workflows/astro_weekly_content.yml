@@ -1,0 +1,103 @@
+workflow_id: astro_weekly_content
+name: Astro / Vedic Content Chain
+version: 1.0.0-draft
+owner: BAURUM
+
+purpose: >
+  Produce a controlled weekly or monthly stream of deep astrological/Vedic
+  content for Telegram, blog, Instagram, and YouTube. The chain starts from
+  sourced materials or user-assigned themes, creates source cards, lets Pavel
+  choose the topics, then produces BAURUM-style content and publishing assets.
+
+core_principles:
+  - All BAURUM-facing outputs are in Russian by default unless Pavel explicitly requests another language.
+  - Every topic must have an origin: source article, calendar event, user brief, or BAURUM asset.
+  - Research is Vedic/Jyotish-first; non-Vedic sources are allowed only when clearly marked and useful.
+  - Research must preserve links and concise summaries before any writing starts.
+  - Pavel controls topic selection before posts are written.
+  - Gemstones are mentioned only when naturally relevant, never as forced direct advertising.
+  - Unused but promising topics should go to a topic bank for future weeks.
+  - Astrological and gemstone claims must be responsible, non-deterministic, and non-medical.
+  - Agents pass structured artifacts, not vague chat messages.
+
+storage_layers:
+  github:
+    purpose: Versioned prompts, schemas, workflows, and runner code.
+    path: agent_system/
+  notion:
+    purpose: Human-facing editorial calendar, topic review, approvals, and status.
+    target_databases:
+      - Content Calendar
+      - AI Agents
+      - Automation Logs
+  google_sheets:
+    purpose: Simple machine-readable publishing queue and performance tracking.
+    target_sheet: Content Publishing Queue
+  artifact_store:
+    purpose: Store extended source summaries and optional full-text extracts without passing everything through every prompt.
+    recommended_options:
+      - local files during MVP
+      - Supabase/Postgres later
+      - Google Drive docs for long research dossiers if needed
+
+human_control_points:
+  - after_topic_candidates: Pavel selects which topics go to writing.
+  - before_publication: Pavel approves final text and visual direction.
+
+agents:
+  - id: content_director
+    name: Content Director
+    prompt_file: ../agents/astro_content_chain/01_content_director.md
+    output_schema: ../schemas/content_brief.schema.json
+    next: research_source_agent
+
+  - id: research_source_agent
+    name: Research & Source Agent
+    prompt_file: ../agents/astro_content_chain/02_research_source_agent.md
+    output_schema: ../schemas/source_research_pack.schema.json
+    next: topic_strategy_agent
+
+  - id: topic_strategy_agent
+    name: Topic Strategy Agent
+    prompt_file: ../agents/astro_content_chain/03_topic_strategy_agent.md
+    output_schema: ../schemas/topic_selection_pack.schema.json
+    next: pavel_topic_selection
+
+  - id: pavel_topic_selection
+    name: Pavel Topic Selection
+    type: human_review
+    output_schema: ../schemas/approved_topics.schema.json
+    next: vedic_content_writer
+
+  - id: vedic_content_writer
+    name: Vedic Content Writer
+    prompt_file: ../agents/astro_content_chain/04_vedic_content_writer.md
+    output_schema: ../schemas/content_draft_pack.schema.json
+    next: editor_publishing_prep_agent
+
+  - id: editor_publishing_prep_agent
+    name: Editor & Publishing Prep Agent
+    prompt_file: ../agents/astro_content_chain/05_editor_publishing_prep_agent.md
+    output_schema: ../schemas/editorial_publishing_pack.schema.json
+    next: visual_agent
+
+  - id: visual_agent
+    name: Visual Agent
+    prompt_file: ../agents/astro_content_chain/06_visual_agent.md
+    output_schema: ../schemas/visual_pack.schema.json
+    next: pavel_publication_approval
+
+  - id: pavel_publication_approval
+    name: Pavel Publication Approval
+    type: human_review
+    next: google_sheets_queue
+
+final_outputs:
+  - topic candidate list for Pavel
+  - approved topic list
+  - Telegram post
+  - optional blog outline or article draft
+  - optional Instagram / Shorts adaptation
+  - visual brief
+  - Google Sheets publishing row
+  - Notion Content Calendar item

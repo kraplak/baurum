@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Source Card",
+  "type": "object",
+  "required": ["source_id", "title", "source_type", "micro_summary_300_chars", "extended_summary", "quality_score", "reuse_mode"],
+  "properties": {
+    "source_id": {"type": "string"},
+    "title": {"type": "string"},
+    "url": {"type": "string"},
+    "is_preferred_source": {"type": "boolean"},
+    "preferred_source_note": {"type": "string"},
+    "source_type": {"type": "string"},
+    "astrology_system": {"type": "string", "enum": ["vedic_jyotish", "western_tropical", "mixed", "astronomical_ephemeris", "unclear", "internal"]},
+    "author_or_publisher": {"type": "string"},
+    "published_at": {"type": "string"},
+    "retrieved_at": {"type": "string"},
+    "micro_summary_300_chars": {"type": "string", "maxLength": 300},
+    "extended_summary": {"type": "string"},
+    "stored_full_text_ref": {"type": "string"},
+    "key_facts": {"type": "array", "items": {"type": "string"}},
+    "interpretive_claims": {"type": "array", "items": {"type": "string"}},
+    "possible_baurum_angles": {"type": "array", "items": {"type": "string"}},
+    "gemstone_relevance": {"type": "string", "enum": ["natural", "optional", "not_relevant", "caution"]},
+    "gemstone_notes": {"type": "array", "items": {"type": "string"}},
+    "topic_bank_status": {"type": "string", "enum": ["candidate_for_this_week", "evergreen_bank", "future_week", "rejected"]},
+    "quality_score": {"type": "number", "minimum": 0, "maximum": 1},
+    "reuse_mode": {"type": "string", "enum": ["inspiration", "adaptation", "critique", "synthesis", "reference_only"]},
+    "risk_notes": {"type": "array", "items": {"type": "string"}}
+  }
+}

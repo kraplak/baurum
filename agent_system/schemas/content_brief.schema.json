@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Content Brief",
+  "type": "object",
+  "required": ["workflow_mode", "goal", "period", "target_final_count", "research_requirements", "gemstone_policy"],
+  "properties": {
+    "workflow_mode": {"type": "string"},
+    "goal": {"type": "string"},
+    "period": {"type": "string"},
+    "timezone": {"type": "string"},
+    "target_candidate_count": {"type": "integer"},
+    "target_final_count": {"type": "integer"},
+    "channels": {"type": "array", "items": {"type": "string"}},
+    "selection_criteria": {"type": "array", "items": {"type": "string"}},
+    "research_requirements": {"type": "array", "items": {"type": "string"}},
+    "gemstone_policy": {"type": "string", "enum": ["natural", "optional", "not_relevant", "mixed"]},
+    "manual_topics": {"type": "array", "items": {"type": "string"}},
+    "constraints": {"type": "array", "items": {"type": "string"}}
+  }
+}
+

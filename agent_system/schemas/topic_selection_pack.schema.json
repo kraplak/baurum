@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Topic Selection Pack",
+  "type": "object",
+  "required": ["brief_id", "candidates", "recommended_selection_count"],
+  "properties": {
+    "brief_id": {"type": "string"},
+    "recommended_selection_count": {"type": "integer"},
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["candidate_id", "title", "source_id", "micro_summary_300_chars", "why_now", "baurum_angle", "score"],
+        "properties": {
+          "candidate_id": {"type": "string"},
+          "title": {"type": "string"},
+          "source_id": {"type": "string"},
+          "source_url": {"type": "string"},
+          "micro_summary_300_chars": {"type": "string", "maxLength": 300},
+          "why_now": {"type": "string"},
+          "baurum_angle": {"type": "string"},
+          "gemstone_relevance": {"type": "string"},
+          "recommended_format": {"type": "string"},
+          "cta_idea": {"type": "string"},
+          "risk_note": {"type": "string"},
+          "score": {"type": "number", "minimum": 0, "maximum": 1}
+        }
+      }
+    }
+  }
+}
+

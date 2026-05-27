@@ -1,0 +1,280 @@
+{
+  "parent_page_id": "3657222f634881f0b757fa4d0e9ace36",
+  "databases": [
+    {
+      "name": "Tasks",
+      "icon": "✅",
+      "properties": {
+        "Task name": {"type": "title"},
+        "Task ID": {"type": "rich_text"},
+        "Area": {"type": "select", "options": ["CEO", "Product", "Production", "Marketing", "CRM", "SOP", "AI", "Legal", "Finance", "Website", "Content", "Automation"]},
+        "Status": {"type": "select", "options": ["Inbox", "To do", "In progress", "Waiting", "Review", "Done", "Archived"]},
+        "Priority": {"type": "select", "options": ["P0 Critical", "P1 High", "P2 Normal", "P3 Low"]},
+        "Owner": {"type": "people"},
+        "Support": {"type": "people"},
+        "Due date": {"type": "date"},
+        "Sprint / Week": {"type": "rich_text"},
+        "Effort": {"type": "select", "options": ["Small", "Medium", "Large"]},
+        "Impact": {"type": "select", "options": ["High", "Medium", "Low"]},
+        "Blocked by": {"type": "rich_text"},
+        "Codex needed": {"type": "checkbox"},
+        "Acceptance criteria": {"type": "rich_text"},
+        "Notes": {"type": "rich_text"},
+        "Automation status": {"type": "select", "options": ["Manual", "Automated", "Needs automation", "Error"]}
+      }
+    },
+    {
+      "name": "Projects",
+      "icon": "📁",
+      "properties": {
+        "Project name": {"type": "title"},
+        "Area": {"type": "select", "options": ["CEO", "Product", "Production", "Marketing", "CRM", "SOP", "AI", "Legal", "Finance", "Website", "Content", "Automation"]},
+        "Status": {"type": "select", "options": ["Idea", "Planned", "In progress", "Waiting", "Done", "Parked"]},
+        "Goal": {"type": "rich_text"},
+        "Owner": {"type": "people"},
+        "Start date": {"type": "date"},
+        "Target date": {"type": "date"},
+        "Success criteria": {"type": "rich_text"},
+        "Notes": {"type": "rich_text"}
+      }
+    },
+    {
+      "name": "Integration Inbox",
+      "icon": "📥",
+      "properties": {
+        "Inbox item": {"type": "title"},
+        "Source": {"type": "select", "options": ["Website", "Instagram", "Telegram", "Email", "WhatsApp", "Google Form", "Manual", "Referral", "Marketplace"]},
+        "Raw name": {"type": "rich_text"},
+        "Raw contact": {"type": "rich_text"},
+        "Raw message": {"type": "rich_text"},
+        "Channel": {"type": "select", "options": ["Website", "Instagram", "Telegram", "Email", "WhatsApp", "Phone", "Manual"]},
+        "Created time": {"type": "date"},
+        "Status": {"type": "select", "options": ["New", "Parsed", "Lead created", "Ignored", "Error"]},
+        "AI summary": {"type": "rich_text"},
+        "Next action": {"type": "rich_text"},
+        "Error notes": {"type": "rich_text"}
+      }
+    },
+    {
+      "name": "Leads",
+      "icon": "🧲",
+      "properties": {
+        "Lead name": {"type": "title"},
+        "Lead ID": {"type": "rich_text"},
+        "Status": {"type": "select", "options": ["New", "Contacted", "Qualified", "Not qualified", "Converted", "Lost"]},
+        "Source": {"type": "select", "options": ["Website", "Instagram", "Telegram", "Email", "WhatsApp", "Marketplace", "Referral", "Event", "Manual"]},
+        "Contact info": {"type": "rich_text"},
+        "Preferred channel": {"type": "select", "options": ["Telegram", "Instagram", "Email", "WhatsApp", "Phone"]},
+        "Request type": {"type": "select", "options": ["Ready ring", "Special order", "Consultation", "Gift", "Question", "Repair"]},
+        "Interested gemstone": {"type": "rich_text"},
+        "Budget range": {"type": "rich_text"},
+        "Urgency": {"type": "select", "options": ["Low", "Medium", "High"]},
+        "Country / city": {"type": "rich_text"},
+        "Language": {"type": "select", "options": ["RU", "EN", "PL", "Other"]},
+        "First message": {"type": "rich_text"},
+        "AI summary": {"type": "rich_text"},
+        "Next follow-up date": {"type": "date"},
+        "Owner": {"type": "people"},
+        "Created date": {"type": "created_time"},
+        "Last contact date": {"type": "date"},
+        "Lost reason": {"type": "rich_text"}
+      }
+    },
+    {
+      "name": "Clients",
+      "icon": "👤",
+      "properties": {
+        "Client name": {"type": "title"},
+        "Contact info": {"type": "rich_text"},
+        "Country / city": {"type": "rich_text"},
+        "Language": {"type": "select", "options": ["RU", "EN", "PL", "Other"]},
+        "Preferred channel": {"type": "select", "options": ["Telegram", "Instagram", "Email", "WhatsApp", "Phone"]},
+        "Client type": {"type": "select", "options": ["Buyer", "Lead", "Partner", "VIP", "Gift buyer"]},
+        "Interested gemstones": {"type": "rich_text"},
+        "Ring size": {"type": "rich_text"},
+        "Style preferences": {"type": "rich_text"},
+        "Notes": {"type": "rich_text"},
+        "Last contact": {"type": "date"},
+        "Next follow-up": {"type": "date"},
+        "Lifetime value": {"type": "number"},
+        "Referral source": {"type": "rich_text"}
+      }
+    },
+    {
+      "name": "Deals / Orders",
+      "icon": "💎",
+      "properties": {
+        "Deal name": {"type": "title"},
+        "Deal ID": {"type": "rich_text"},
+        "Lead source": {"type": "select", "options": ["Website", "Instagram", "Telegram", "Email", "WhatsApp", "Marketplace", "Referral", "Event", "Manual"]},
+        "Status": {"type": "select", "options": ["Inquiry", "Proposal", "Waiting payment", "Paid", "In production", "Ready", "Shipped", "Completed", "Lost"]},
+        "Deal type": {"type": "select", "options": ["Ready ring", "Special order", "Bespoke", "Gift", "Repair"]},
+        "Amount": {"type": "number"},
+        "Cost": {"type": "number"},
+        "Margin": {"type": "number"},
+        "Payment status": {"type": "select", "options": ["No invoice", "Deposit requested", "Deposit paid", "Paid", "Refunded"]},
+        "Deposit": {"type": "number"},
+        "Balance": {"type": "number"},
+        "Due date": {"type": "date"},
+        "Delivery method": {"type": "rich_text"},
+        "Tracking": {"type": "rich_text"},
+        "Next action": {"type": "rich_text"},
+        "Notes": {"type": "rich_text"}
+      }
+    },
+    {
+      "name": "Follow-ups",
+      "icon": "🔁",
+      "properties": {
+        "Follow-up name": {"type": "title"},
+        "Due date": {"type": "date"},
+        "Status": {"type": "select", "options": ["Planned", "Sent", "Skipped", "Done", "Overdue"]},
+        "Channel": {"type": "select", "options": ["Telegram", "Instagram", "Email", "WhatsApp", "Phone"]},
+        "Message template": {"type": "rich_text"},
+        "Owner": {"type": "people"},
+        "Notes": {"type": "rich_text"}
+      }
+    },
+    {
+      "name": "Products / SKU",
+      "icon": "💍",
+      "properties": {
+        "Product name": {"type": "title"},
+        "SKU": {"type": "rich_text"},
+        "Status": {"type": "select", "options": ["Idea", "In design", "In production", "Available", "Reserved", "Sold", "Archived"]},
+        "Product type": {"type": "select", "options": ["Ring", "Pendant", "Earrings", "Bracelet", "Other"]},
+        "Collection": {"type": "rich_text"},
+        "Gemstone": {"type": "rich_text"},
+        "Design / Model": {"type": "rich_text"},
+        "Metal": {"type": "rich_text"},
+        "Ring size": {"type": "rich_text"},
+        "Gemstone weight": {"type": "number"},
+        "Gemstone cut": {"type": "rich_text"},
+        "Gemstone contact with finger": {"type": "checkbox"},
+        "Cost": {"type": "number"},
+        "Retail price": {"type": "number"},
+        "Margin": {"type": "number"},
+        "Photos status": {"type": "select", "options": ["Needed", "Done", "Approved"]},
+        "Video status": {"type": "select", "options": ["Needed", "Done", "Approved"]},
+        "Product page URL": {"type": "url"},
+        "SEO title": {"type": "rich_text"},
+        "SEO description": {"type": "rich_text"},
+        "Description status": {"type": "select", "options": ["Needed", "Draft", "Approved", "Published"]},
+        "Available on website": {"type": "checkbox"},
+        "Available on marketplace": {"type": "checkbox"},
+        "Notes": {"type": "rich_text"}
+      }
+    },
+    {
+      "name": "Gemstones",
+      "icon": "🔮",
+      "properties": {
+        "Gemstone ID": {"type": "title"},
+        "Stone type": {"type": "select", "options": ["Ruby", "Emerald", "Yellow Sapphire", "Blue Sapphire", "Diamond", "Tourmaline", "Pearl", "Coral", "Other"]},
+        "Status": {"type": "select", "options": ["Available", "Reserved", "Used", "Sold", "Candidate", "Rejected"]},
+        "Weight ct": {"type": "number"},
+        "Size mm": {"type": "rich_text"},
+        "Cut": {"type": "rich_text"},
+        "Color": {"type": "rich_text"},
+        "Clarity": {"type": "rich_text"},
+        "Treatment": {"type": "select", "options": ["Unheated", "Heated", "Unknown", "Other"]},
+        "Origin": {"type": "rich_text"},
+        "Supplier": {"type": "rich_text"},
+        "Purchase cost": {"type": "number"},
+        "Recommended retail value": {"type": "number"},
+        "Jyotish correspondence": {"type": "select", "options": ["Sun", "Mercury", "Jupiter", "Saturn", "Venus", "Moon", "Mars", "Rahu", "Ketu", "Other"]},
+        "Recommended use": {"type": "rich_text"},
+        "Certificate": {"type": "url"},
+        "Notes": {"type": "rich_text"}
+      }
+    },
+    {
+      "name": "Production Orders",
+      "icon": "🛠️",
+      "properties": {
+        "Production ID": {"type": "title"},
+        "Status": {"type": "select", "options": ["Brief", "3D model", "Approved", "Casting", "Cleaning", "Stone setting", "Polishing", "QC", "Photo", "Ready", "Delivered"]},
+        "Priority": {"type": "select", "options": ["P0 Critical", "P1 High", "P2 Normal", "P3 Low"]},
+        "Due date": {"type": "date"},
+        "Responsible": {"type": "people"},
+        "Jeweler": {"type": "rich_text"},
+        "Casting supplier": {"type": "rich_text"},
+        "Gemstone status": {"type": "select", "options": ["Needed", "Reserved", "Ready", "Set", "Problem"]},
+        "Metal status": {"type": "select", "options": ["Needed", "Ready", "Ordered", "Problem"]},
+        "3D file status": {"type": "select", "options": ["Needed", "Draft", "Approved", "Sent"]},
+        "Casting date": {"type": "date"},
+        "Setting date": {"type": "date"},
+        "Polishing date": {"type": "date"},
+        "QC checklist": {"type": "rich_text"},
+        "Delay reason": {"type": "rich_text"},
+        "Client update sent": {"type": "checkbox"},
+        "Photos needed": {"type": "checkbox"},
+        "Notes": {"type": "rich_text"}
+      }
+    },
+    {
+      "name": "Content Calendar",
+      "icon": "📝",
+      "properties": {
+        "Content title": {"type": "title"},
+        "Content ID": {"type": "rich_text"},
+        "Channel": {"type": "select", "options": ["Blog", "Telegram", "Instagram", "Email", "Website", "Pinterest", "YouTube Shorts"]},
+        "Status": {"type": "select", "options": ["Idea", "Brief", "Draft", "Review", "Approved", "Scheduled", "Published", "Repurposed"]},
+        "Content type": {"type": "select", "options": ["Article", "Post", "Reel", "Story", "Product description", "FAQ", "SEO page"]},
+        "Topic": {"type": "rich_text"},
+        "Keyword": {"type": "rich_text"},
+        "Author": {"type": "people"},
+        "AI Agent": {"type": "rich_text"},
+        "Publish date": {"type": "date"},
+        "URL": {"type": "url"},
+        "CTA": {"type": "rich_text"},
+        "Visual asset": {"type": "url"},
+        "Performance": {"type": "rich_text"},
+        "Notes": {"type": "rich_text"}
+      }
+    },
+    {
+      "name": "SOP",
+      "icon": "📚",
+      "properties": {
+        "SOP name": {"type": "title"},
+        "Area": {"type": "select", "options": ["Product", "Production", "Marketing", "CRM", "Website", "AI", "Legal", "Finance"]},
+        "Status": {"type": "select", "options": ["Draft", "Active", "Needs update", "Deprecated"]},
+        "Owner": {"type": "people"},
+        "Last updated": {"type": "date"},
+        "Related tools": {"type": "rich_text"},
+        "Access level": {"type": "select", "options": ["Founder", "Team", "External", "Restricted"]},
+        "Checklist": {"type": "rich_text"}
+      }
+    },
+    {
+      "name": "Automation Logs",
+      "icon": "🧾",
+      "properties": {
+        "Log item": {"type": "title"},
+        "Automation": {"type": "rich_text"},
+        "Status": {"type": "select", "options": ["Success", "Warning", "Error"]},
+        "Run time": {"type": "date"},
+        "Source": {"type": "rich_text"},
+        "Message": {"type": "rich_text"},
+        "Related record": {"type": "url"},
+        "Resolved": {"type": "checkbox"}
+      }
+    },
+    {
+      "name": "AI Agents",
+      "icon": "🤖",
+      "properties": {
+        "Agent name": {"type": "title"},
+        "Role": {"type": "rich_text"},
+        "Area": {"type": "select", "options": ["Brand", "SEO", "Product", "CRM", "Content", "Research", "Production", "Technical"]},
+        "Prompt": {"type": "rich_text"},
+        "Input needed": {"type": "rich_text"},
+        "Output format": {"type": "rich_text"},
+        "Status": {"type": "select", "options": ["Active", "Testing", "Deprecated"]},
+        "Owner": {"type": "people"}
+      }
+    }
+  ]
+}
+
