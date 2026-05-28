@@ -736,6 +736,29 @@ h1 {
   border-color: var(--green);
 }
 
+.inline-action.muted-action {
+  border-color: #d8bd7c;
+  background: #fffaf0;
+  color: #805c1f;
+}
+
+.inline-action.muted-action:hover {
+  background: var(--gold-soft);
+  color: #75541d;
+  border-color: #d8bd7c;
+}
+
+.inline-action.strong-action {
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+}
+
+.inline-action.strong-action:hover {
+  background: #1f4a42;
+  border-color: #1f4a42;
+}
+
 .inline-action.compact {
   min-height: 28px;
   border-radius: 999px;

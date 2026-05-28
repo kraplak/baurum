@@ -550,6 +550,8 @@
                     <span class="step-strip inline-steps">
                       ${statusSteps(topic)}
                       <button class="inline-action compact" data-action="open" data-id="${topic.id}">Открыть текст</button>
+                      <button class="inline-action compact muted-action" data-action="rerun-topic" data-id="${topic.id}">Перезапустить</button>
+                      <button class="inline-action compact strong-action" data-action="rewrite-topic" data-id="${topic.id}">Переписать</button>
                     </span>
                   </span>
                   ${!topic.selected ? '<span class="badge plum">not selected</span>' : ""}
