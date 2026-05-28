@@ -83,7 +83,7 @@
             <div class="panel-header">
               <div>
                 <h2 class="panel-title">Тестовый цикл агентов</h2>
-                <p class="panel-note">Запускает 1-2 выбранные темы через Content Director, Research, Strategy, Writer, Editor и Visual. Сейчас это безопасный workflow simulator без внешнего API.</p>
+                <p class="panel-note">Запускает 1-2 выбранные темы через Content Director, Research, Strategy, Writer, Editor и Visual. Темы ниже заменены на проверенный seed research от 28 мая; сама цепочка пока работает как безопасный simulator без внешнего API.</p>
               </div>
               <span class="badge green" id="agent-cycle-status">готов к тесту</span>
             </div>
@@ -314,134 +314,108 @@
     <script>
       const topics = [
         {
-          id: "mercury-cancer-ingress",
+          id: "guru-gochar-cancer-verified",
           index: 1,
           selected: true,
-          status: "writing",
-          title: "Меркурий входит в Рак: когда словам нужна память и контекст",
-          line: "Смешанный источник · событие 1 июня · камни optional · банк: эта неделя · score 0.94",
-          summary: "1 июня Меркурий входит в Рак и задерживается там надолго из-за будущей ретроградности. Сильная тема о речи, которая становится личной, эмоциональной и контекстной.",
-          angle: "Статья о том, как меняется коммуникация, когда фактов недостаточно, а тон, память и забота становятся частью интеллекта.",
-          risk: "Не скатываться в страхи про ретроградный Меркурий. Держать тему как вход Меркурия и качество речи.",
-          source: "https://cafeastrology.com/events/mercury-enters-cancer-2026/",
-          article: "Mercury entering Cancer changes the quality of speech. The point is not that thinking becomes weaker or less rational. It becomes more contextual.\n\nCancer asks Mercury to remember the room: history, family, emotional atmosphere, unspoken associations, the tone in which a sentence lands. This can be a deeply intelligent placement when it is not reduced to sentiment.\n\nFor BAURUM, this is a strong theme because meaningful objects are also contextual. A stone, a ring, a word of advice or a consultation does not exist in isolation. It belongs to a person, a moment, a question, a lineage of choices.\n\nThe useful question for this week: what changes when communication stops being only correct and becomes caring enough to be precise?"
+          status: "selected",
+          title: "Guru Gochar: Юпитер входит в Рак и тема мудрости становится личной",
+          line: "Проверенный Vedic/Jyotish source · 2 июня 2026 · yellow sapphire natural · score 0.96",
+          summary: "The Ancient Vedic Astrology пишет, что 2 июня 2026 Юпитер входит в Рак, знак своей экзальтации. Для BAURUM это сильная тема о знании, наставничестве и ответственности, а не о быстрых обещаниях.",
+          angle: "Сделать пост о том, почему сила Юпитера требует зрелости: знание, учитель, мера, личная карта и осторожность с желтым сапфиром.",
+          risk: "Не обещать богатство, удачу или универсальную пользу желтого сапфира. Подчеркнуть, что пригодность камня зависит от карты и качества.",
+          source: "https://www.theancientvedicastrology.com/post/jupiter-turns-direct-in-gemini-on-march-11-2026-before-entering-exalted-cancer-on-june-2-2026-di",
+          article: "Проверенный source card: The Ancient Vedic Astrology указывает 2 июня 2026 как дату входа Юпитера в Рак и отмечает, что в Jyotish это знак экзальтации Юпитера. BAURUM angle: не подавать transit как обещание результата. Лучше говорить о зрелой способности принимать знание, наставничество и ответственность. Желтый сапфир можно упомянуть как традиционную связь с Юпитером, но только с оговоркой о карте, качестве камня и личной уместности."
         },
         {
-          id: "mercury-cancer-long-cycle",
+          id: "jupiter-cancer-grace-indastro",
           index: 2,
           selected: true,
-          status: "visual",
-          title: "Меркурий в Раке как длинный цикл эмоциональной логики",
-          line: "Смешанный источник · длинный июньский цикл · камни optional · банк: эта неделя · score 0.92",
-          summary: "Источник описывает вход Меркурия в Рак как необычно длинный цикл, связанный с Венерой/Юпитером в Раке и будущей ретроградностью. Хорошая база для лонгрида.",
-          angle: "Эмоциональная логика как утончённый интеллект: умение читать атмосферу, а не только данные.",
-          risk: "Источник использует tropical astrology; для BAURUM нужно аккуратно переводить в ведический контекст.",
-          source: "https://www.serenastro.com/blog/mercury-enters-cancer-stellium-june-2026",
-          article: "When Mercury stays in Cancer for an extended period, communication becomes less linear and more atmospheric. The mind does not only ask: what is the fact? It asks: what does this fact mean inside a relationship, a memory, a family, a body, a home?\n\nThis is not a weakness of thought. It is another kind of intelligence. For BAURUM, this can be written as an article about emotional logic: the ability to notice what a purely technical eye misses.\n\nA refined object is chosen in the same way. Not only by parameters, but by context: why this stone, why now, why this form, why this contact with the body?"
+          status: "selected",
+          title: "Юпитер в Раке: когда рост начинается с внутреннего состояния",
+          line: "Проверенный Vedic source · 2 июня - 31 октября 2026 · gemstone natural · score 0.92",
+          summary: "Indastro описывает Jupiter in Cancer как редкий транзит, связанный с мудростью, защитой, эмоциональной ясностью и поддержкой. Хороший материал для мягкого, глубокого BAURUM-поста.",
+          angle: "Пост о том, что настоящая поддержка не всегда выглядит как внешнее расширение; иногда сначала меняется внутреннее чувство опоры.",
+          risk: "В источнике много сильных обещающих формулировок. Для BAURUM их нужно смягчить и убрать гарантии.",
+          source: "https://www.indastro.com/astrology-articles/vedic-astrology/jupiter-in-cancer.html",
+          article: "Проверенный source card: Indastro пишет о периоде Jupiter in Cancer с 2 июня по 31 октября 2026 и связывает его с мудростью, эмоциональной ясностью, поддержкой и темой grace. BAURUM angle: превратить это не в прогноз, а в философский текст о внутренней опоре. Камень возможен как традиционный мост к Юпитеру, но без рекомендации 'носить всем'."
         },
         {
-          id: "full-moon-sag-mercury-cancer",
+          id: "guru-gochar-pushkaralu",
           index: 3,
           selected: false,
           status: "research",
-          title: "Июнь открывается большой картиной и очень личной речью",
-          line: "Западный источник · кластер 1 июня · камни не обязательны · банк: эта неделя · score 0.86",
-          summary: "1 июня совмещаются тема полнолуния в Стрельце и вход Меркурия в Рак. Угол: большая правда встречается с осторожной, интимной коммуникацией.",
-          angle: "Большая правда, аккуратные слова: как широкому видению нужна эмоционально точная речь.",
-          risk: "Перед публикацией проверить точное время полнолуния вторым источником.",
-          source: "https://www.zodiac-astrology-horoscopes.com/articles/june-2026-astrology-key-events-dates-and-what-they-mean/",
-          article: "The first days of June carry a contrast: the wide horizon of Sagittarius and the intimate speech of Cancer. One wants to name the truth. The other asks how that truth is held, received and remembered.\n\nThis is a useful BAURUM article because spiritual language often fails at the point of tone. A truth can be accurate and still be poorly carried. A beautiful object can be meaningful and still be wrongly chosen for a person.\n\nThe theme is not silence. It is mature expression."
+          title: "Yamuna Pushkaralu и Юпитер в Раке: когда транзит становится ритуальным временем",
+          line: "Проверенный Vedic/cultural source · 2-13 июня 2026 · gemstone optional · score 0.88",
+          summary: "Pushkaralu.in связывает Yamuna Pushkaralu 2026 с входом Юпитера в Karka Rashi 2 июня. Это не просто астрологическая дата, а культурно-ритуальный контекст.",
+          angle: "Пост о том, что Jyotish живет не только в прогнозах, но и в календарях, реках, ритуалах и памяти традиции.",
+          risk: "Не присваивать религиозный контекст бренду слишком грубо. Писать уважительно, без имитации ритуального авторитета.",
+          source: "https://pushkaralu.in/",
+          article: "Проверенный source card: Pushkaralu.in описывает Yamuna Pushkaralu 2026 как период 2-13 июня и связывает начало с входом Jupiter/Guru в Cancer/Karka Rashi. BAURUM angle: показать, что планетарное событие может иметь культурное и ритуальное измерение. Это хороший контент для образования аудитории, не обязательно для продажи."
         },
         {
-          id: "uranus-gemini-ai-media",
+          id: "mercury-cancer-serenastro",
           index: 4,
           selected: false,
           status: "research",
-          title: "Уран в Близнецах: AI, медиа и нервная система внимания",
-          line: "Западный источник · внешний планетный сдвиг · камни не релевантны · банк: будущее/стратегия · score 0.90",
-          summary: "Большая статья описывает Уран в Близнецах как многолетний сдвиг в коммуникации, AI, медиа и ментальных структурах.",
-          angle: "Как духовное внимание выживает в ускорении информационного поля.",
-          risk: "Чётко указать систему; не подавать tropical timing как ведический транзит.",
-          source: "https://synthesisastrology.com/blog/uranus-in-gemini-2026",
-          article: "Uranus in Gemini is a theme about acceleration of thought. Information becomes unstable, brilliant, fragmented and disruptive. The question is not only what new tools appear, but what happens to attention when every system learns to interrupt it.\n\nFor BAURUM, this can become a serious article about discernment. Spiritual culture cannot compete with noise by becoming noisier. It has to protect depth.\n\nIn a world of faster messages, a meaningful object can become a counter-form: a reminder that some choices should not be made at the speed of a feed."
+          title: "Меркурий в Раке: когда речь становится эмоционально точной",
+          line: "Проверенный western/tropical source · 1 июня 2026 · gemstone optional · score 0.84",
+          summary: "SerenAstro пишет, что Mercury enters Cancer 1 июня 2026 и остается там долго из-за retrograde cycle. Это western/tropical источник, его нужно явно маркировать.",
+          angle: "Тема о речи, которая учитывает память, тон и контекст. Для BAURUM это мост к консультации как бережной форме разговора.",
+          risk: "Не выдавать tropical transit за Jyotish. Использовать как adjacent source, а не как ведический факт.",
+          source: "https://www.serenastro.com/blog/mercury-in-cancer-june-2026",
+          article: "Проверенный source card: SerenAstro указывает Mercury in Cancer с 1 июня 2026 и делает акцент на emotional subtext. Это не Jyotish source. BAURUM angle: речь как часть заботы и точности; консультация как место, где важны не только данные, но и контекст человека."
         },
         {
-          id: "uranus-gemini-threshold",
+          id: "full-moon-sagittarius-source",
           index: 5,
           selected: false,
           status: "research",
-          title: "Uranus enters Gemini: what changes when the mind becomes the field",
-          line: "Western source · June 7 event · gemstone not relevant · bank: this week · score 0.84",
-          summary: "Source lists Uranus entering Gemini on June 7 as a key June event. Useful week-ending topic about disruption in thought, media and language.",
-          angle: "What changes when the mind becomes the battlefield: a non-alarmist piece on discernment.",
-          risk: "Different astrology systems may place Uranus differently; mark system clearly.",
-          source: "https://www.zodiac-astrology-horoscopes.com/articles/june-2026-astrology-key-events-dates-and-what-they-mean/",
-          article: "When Uranus enters Gemini, the symbolic emphasis moves toward language, media, learning, nervous systems and networks. The mind becomes less private and more exposed to shocks.\n\nThe BAURUM angle is not fear of technology. It is the question of inner authorship. Who is thinking inside us when the information field becomes faster than reflection?\n\nA good article here would not offer prediction. It would offer a discipline of attention."
+          title: "Полнолуние 1 июня: большая правда и осторожные слова",
+          line: "Проверенный lunar/western source · 1 июня 2026 · gemstone not relevant · score 0.80",
+          summary: "Несколько lunar sources указывают Full Moon 1 июня 2026 в Sagittarius/Стрельце. Это можно использовать как reflective Telegram-тему без камней.",
+          angle: "Пост о разнице между правдой как лозунгом и правдой, которую можно бережно произнести.",
+          risk: "Не превращать в generic full moon ritual. Для BAURUM лучше сделать короткую философскую заметку.",
+          source: "https://www.cosmicguideai.com/lunar-events/full-moon-in-sagittarius-june-2026/",
+          article: "Проверенный source card: lunar sources указывают Full Moon in Sagittarius 1 июня 2026. BAURUM angle: не делать horoscope-текст; использовать как повод для размышления о правде, смысле и мягкой форме выражения."
         },
         {
-          id: "sun-sextile-saturn",
+          id: "uranus-gemini-system-warning",
           index: 6,
           selected: false,
           status: "research",
-          title: "Sun sextile Saturn: making ideas useful",
-          line: "Ephemeris/aspect source · June 2 event · gemstone optional · bank: this week · score 0.78",
-          summary: "Sun sextile Saturn is listed as exact on June 2. Useful for a practical article on discipline, commitments and turning ideas into structure.",
-          angle: "Craft, discipline and form: why meaning needs structure to become real.",
-          risk: "Source quality moderate; verify with ephemeris before publishing.",
-          source: "https://www.dxpnet.com/astrology/aspects/sextile/sun-sextile-saturn/",
-          article: "Sun-Saturn contacts are useful for BAURUM because they speak the language of form. A vision that never accepts limits remains vague. A design that never accepts structure cannot hold a stone.\n\nThis article can connect spiritual aspiration with material discipline. Not every restriction is punishment. Some restrictions are the exact condition that allows meaning to become visible.\n\nThe practical question: what must be shaped, measured or committed to this week?"
+          title: "Уран в Близнецах: сильная western-тема, но не ведический транзит",
+          line: "Проверенный western/tropical source · система требует маркировки · gemstone not relevant · score 0.78",
+          summary: "Synthesis Astrology объясняет Uranus in Gemini 2026 в tropical zodiac и прямо различает tropical и sidereal systems. Это полезно как тема про AI/медиа, но не как Jyotish-транзит.",
+          angle: "Пост о внимании, языке и скорости информационного поля: как сохранить глубину, когда коммуникация ускоряется.",
+          risk: "Обязательно написать, что это western/tropical context. В Jyotish не подавать как sidereal ingress.",
+          source: "https://synthesisastrology.com/blog/uranus-in-gemini-2026",
+          article: "Проверенный source card: Synthesis Astrology пишет о Uranus in Gemini в tropical zodiac и отдельно отмечает отличие от sidereal/Jyotish. BAURUM angle: не технический прогноз, а культурная тема о скорости информации, AI, языке и необходимости сохранять глубину."
         },
         {
-          id: "cancer-stellium-care",
+          id: "saturn-neptune-form",
           index: 7,
           selected: false,
           status: "research",
-          title: "Cancer stellium: the intelligence of care",
-          line: "Mixed source · Mercury/Venus/Jupiter in Cancer · gemstone optional · bank: this week · score 0.88",
-          summary: "Mercury joins Venus and Jupiter in Cancer, creating a strong home, memory and emotional-care signature. Good article about tenderness without losing precision.",
-          angle: "The intelligence of care: how refined choices include emotional atmosphere.",
-          risk: "Do not make it sentimental. Keep the article precise.",
-          source: "https://www.serenastro.com/blog/mercury-enters-cancer-stellium-june-2026",
-          article: "A Cancer stellium can be reduced to softness, but that misses its strength. Care is not vagueness. Care is the ability to hold context long enough for a choice to become humane.\n\nFor BAURUM, this is a natural article about refinement. Refinement is not only visual. It is emotional proportion: knowing how much to say, how much to reveal, how much to protect.\n\nIf a gemstone is mentioned here, it should be subtle. The center is not the stone. The center is the quality of attention around a meaningful choice."
+          title: "Saturn-Neptune 2026: мечта должна принять форму",
+          line: "Проверенный background source · февраль 2026, актуально как фон · gemstone optional · score 0.76",
+          summary: "Synthesis Astrology описывает Saturn-Neptune conjunction at 0 Aries как большой background cycle 2026. Это не событие недели, но хороший evergreen для BAURUM о форме и смысле.",
+          angle: "Статья о том, что духовная идея становится реальной только через форму: пропорцию, металл, посадку, решение.",
+          risk: "Не писать, что аспект точный 1-7 июня. Пометить как background 2026.",
+          source: "https://synthesisastrology.com/ar/blog/saturn-neptune-conjunction-2026",
+          article: "Проверенный source card: Saturn-Neptune conjunction at 0 Aries описан как важный цикл 2026, точный в феврале. BAURUM angle: использовать как evergreen-тему о том, как мечта и символ становятся формой, ремеслом и материальным объектом."
         },
         {
-          id: "mercury-square-neptune",
+          id: "ephemeris-crosscheck-june10",
           index: 8,
           selected: false,
           status: "research",
-          title: "Mercury square Neptune: intuition or assumption?",
-          line: "Aspect source · June 3 event · gemstone not relevant · bank: this week · score 0.81",
-          summary: "Mercury square Neptune is listed for June 3. Good topic about unclear messages, projection and the need for gentle verification.",
-          angle: "Not confusing intuition with assumption. Strong reflective blog topic.",
-          risk: "Treat as interpretation, not prediction.",
-          source: "https://cafeastrology.com/events/mercury-enters-cancer-2026/",
-          article: "Mercury-Neptune contacts can blur the boundary between intuition and assumption. Something feels meaningful, but that does not mean it has been understood correctly.\n\nThis is valuable for BAURUM because spiritual language needs humility. Not every sign is instruction. Not every feeling is clarity.\n\nA refined practice asks for both sensitivity and verification."
-        },
-        {
-          id: "mercury-quincunx-pluto",
-          index: 9,
-          selected: false,
-          status: "research",
-          title: "Mercury quincunx Pluto: words, control and hidden pressure",
-          line: "Aspect source · June 4 event · gemstone not relevant · bank: future · score 0.76",
-          summary: "Mercury quincunx Pluto is listed for June 4. Useful topic about pressure behind speech and avoiding emotional manipulation.",
-          angle: "How to keep speech clean when the desire to control the outcome appears.",
-          risk: "Could become too psychological; keep grounded.",
-          source: "https://cafeastrology.com/events/mercury-enters-cancer-2026/",
-          article: "Some conversations are not only exchanges of information. They carry pressure: the wish to persuade, to control, to force a response.\n\nMercury-Pluto themes can become a BAURUM article about clean speech. A meaningful tradition loses dignity when it becomes manipulative. A consultation should clarify, not capture.\n\nThe article can ask: where does my language try to control what it should simply reveal?"
-        },
-        {
-          id: "saturn-neptune-background",
-          index: 10,
-          selected: false,
-          status: "research",
-          title: "Saturn-Neptune in Aries: a dream must accept form",
-          line: "Background source · not exact this week · gemstone optional · bank: evergreen · score 0.80",
-          summary: "Source frames Saturn-Neptune at 0 Aries as a major cycle of reality, imagination and beginnings. Good background article, not a strict weekly event.",
-          angle: "A dream must accept form: brand-philosophy article linking spiritual vision and craft.",
-          risk: "Use as background only; do not present as exact weekly transit.",
-          source: "https://risingsignastrology.anandi.ch/saturn-neptune-conjunction-at-0-45-aries-february-20th-2026/",
-          article: "Saturn-Neptune is a background theme of vision meeting form. Neptune imagines, dissolves and opens the symbolic field. Saturn asks what can actually stand.\n\nFor BAURUM, this is almost architectural. A spiritual idea must become a ring, a setting, a proportion, a consultation, a decision. Otherwise it remains beautiful but ungrounded.\n\nThe article should not claim that the aspect is exact this week. It should use the larger 2026 background to explain why form matters."
+          title: "Ephemeris cross-check: к 10 июня Mercury, Venus и Jupiter в Cancer",
+          line: "Проверенный ephemeris source · NASA JPL Horizons attribution · gemstone natural/optional · score 0.74",
+          summary: "Zodiac Astrology Horoscopes ephemeris на 10 июня 2026 показывает Mercury, Venus и Jupiter в Cancer и указывает data source NASA JPL Horizons.",
+          angle: "Использовать как факт-чек для кластера Cancer: забота, память, вкус, знание и эмоциональная точность.",
+          risk: "Это tropical ephemeris. Не смешивать напрямую с Jyotish без пересчета системы.",
+          source: "https://www.zodiac-astrology-horoscopes.com/ephemeris/year/2026/06/10/",
+          article: "Проверенный source card: daily ephemeris на 10 июня 2026 указывает Mercury, Venus и Jupiter в Cancer и ссылается на NASA JPL Horizons как источник данных. BAURUM angle: использовать не как готовую интерпретацию, а как cross-check для темы Cancer-кластера."
         }
       ];
 
