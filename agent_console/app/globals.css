@@ -581,6 +581,23 @@ h1 {
   margin-bottom: 18px;
 }
 
+.source-preferences-panel .panel-header {
+  cursor: pointer;
+}
+
+.source-preferences-panel.collapsed .content-area {
+  display: none;
+}
+
+.source-preferences-panel.collapsed .panel-header {
+  border-bottom: 0;
+}
+
+.source-preferences-panel.collapsed .panel-note::after {
+  content: " Нажмите, чтобы открыть.";
+  color: #805c1f;
+}
+
 .agent-cycle-panel {
   margin-bottom: 18px;
 }
@@ -1068,6 +1085,13 @@ button.step:hover {
   resize: vertical;
   line-height: 1.5;
   font-size: 13px;
+}
+
+.agent-prompt-box textarea:disabled,
+.prompt-workspace textarea:disabled {
+  background: #fbfaf7;
+  color: #403d37;
+  cursor: default;
 }
 
 .prompt-workspace {
