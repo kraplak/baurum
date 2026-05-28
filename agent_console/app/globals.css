@@ -843,6 +843,15 @@ h1 {
   font-weight: 600;
 }
 
+button.step {
+  cursor: pointer;
+}
+
+button.step:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+
 .step.done {
   color: #fff;
   background: var(--green);
@@ -959,6 +968,14 @@ h1 {
   text-align: center;
 }
 
+.article-visual svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  border-radius: 8px;
+}
+
 .article-text {
   color: #2d2a25;
   line-height: 1.65;
@@ -1014,6 +1031,47 @@ h1 {
   color: #4a3a1c;
   font-size: 13px;
   line-height: 1.5;
+}
+
+.agent-prompt-box textarea,
+.prompt-workspace textarea {
+  width: 100%;
+  min-height: 150px;
+  border: 1px solid #d8bd7c;
+  border-radius: 8px;
+  background: #fff;
+  color: #2d2a25;
+  padding: 10px;
+  resize: vertical;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+.prompt-workspace {
+  grid-column: 1 / -1;
+  border: 1px solid #d8bd7c;
+  border-radius: 8px;
+  background: #fffaf0;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.prompt-workspace-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.prompt-workspace-head strong {
+  color: #4a3a1c;
+}
+
+.prompt-workspace-head p {
+  margin-top: 3px;
+  color: #805c1f;
+  font-size: 12px;
 }
 
 .agent-step-card pre {

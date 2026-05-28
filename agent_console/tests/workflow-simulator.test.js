@@ -29,7 +29,11 @@ const topic = {
 
 const result = simulator.runAgentChain(topic, {
   preferredSources: "trusted jyotish source",
-  publicationWindow: "1-7 июня 2026"
+  publicationWindow: "1-7 июня 2026",
+  prompts: {
+    writer: "CUSTOM WRITER PROMPT: write a stronger practical BAURUM text."
+  },
+  rewriteInstruction: "Сделай текст менее общим и добавь конкретный вывод."
 });
 
 assert.equal(result.topicId, topic.id);
@@ -37,6 +41,9 @@ assert.equal(result.status, "visual_ready");
 assert.equal(result.steps.length, 6);
 assert.equal(result.steps[0].agentName, "Content Director");
 assert.match(result.steps[0].internalPrompt, /content brief/i);
+assert.equal(result.steps.find((step) => step.agentId === "writer").internalPrompt, "CUSTOM WRITER PROMPT: write a stronger practical BAURUM text.");
 assert.match(result.finalTelegramText, /Юпитер/);
+assert.match(result.finalTelegramText, /Переписано с учетом/);
 assert.match(result.visualBrief.imagePrompt, /editorial/i);
+assert.match(result.visualAsset.svg, /<svg/);
 assert.equal(result.publishing.status, "draft_review");

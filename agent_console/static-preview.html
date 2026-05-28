@@ -422,7 +422,8 @@
       const state = {
         topics: topics.map((topic) => ({ ...topic })),
         openedArticleId: null,
-        agentRuns: []
+        agentRuns: [],
+        promptOverrides: {}
       };
 
       const researchList = document.querySelector(".research-list");
@@ -454,6 +455,38 @@
         return escapeHtml(JSON.stringify(value, null, 2));
       }
 
+      const stepAgentMap = {
+        Research: "research",
+        Selected: "strategy",
+        Writing: "writer",
+        Edit: "editor",
+        Visual: "visual",
+        Approve: "editor"
+      };
+
+      function getAgent(agentId) {
+        return window.BaurumWorkflow.agents.find((agent) => agent.id === agentId);
+      }
+
+      function getAgentPrompt(agentId) {
+        return state.promptOverrides[agentId] || getAgent(agentId)?.prompt || "";
+      }
+
+      function savePromptOverride(agentId, value) {
+        state.promptOverrides[agentId] = value.trim();
+        window.localStorage.setItem("baurum.agentPrompts", JSON.stringify(state.promptOverrides));
+      }
+
+      function loadPromptOverrides() {
+        const saved = window.localStorage.getItem("baurum.agentPrompts");
+        if (!saved) return;
+        try {
+          state.promptOverrides = JSON.parse(saved);
+        } catch {
+          state.promptOverrides = {};
+        }
+      }
+
       function statusSteps(topic) {
         const order = ["Research", "Selected", "Writing", "Edit", "Visual", "Approve"];
         const active = {
@@ -471,9 +504,33 @@
             const done = index < active;
             const current = index === active && topic.status !== "approved";
             const className = done ? "done" : current ? "active" : "";
-            return `<span class="step ${className}">${label}</span>`;
+            return `<button type="button" class="step ${className}" data-action="inspect-step" data-id="${topic.id}" data-agent-id="${stepAgentMap[label]}">${label}</button>`;
           })
           .join("");
+      }
+
+      function renderPromptWorkspace(topic) {
+        if (!topic.inspectAgentId) return "";
+        const agent = getAgent(topic.inspectAgentId);
+        if (!agent) return "";
+
+        return `
+          <div class="prompt-workspace">
+            <div class="prompt-workspace-head">
+              <div>
+                <strong>${escapeHtml(agent.name)}</strong>
+                <p>Это prompt, который будет использован при следующем запуске цепочки.</p>
+              </div>
+              <span class="badge ${state.promptOverrides[agent.id] ? "gold" : "green"}">${state.promptOverrides[agent.id] ? "изменен" : "default"}</span>
+            </div>
+            <textarea data-role="prompt-editor" data-agent-id="${agent.id}">${escapeHtml(getAgentPrompt(agent.id))}</textarea>
+            <div class="topic-actions">
+              <button class="secondary-button" data-action="save-prompt" data-agent-id="${agent.id}">Сохранить prompt</button>
+              <button class="secondary-button" data-action="rerun-topic" data-id="${topic.id}">Перезапустить цепочку</button>
+              <button class="primary-button" data-action="rewrite-topic" data-id="${topic.id}">Переписать текст</button>
+            </div>
+          </div>
+        `;
       }
 
       function renderTopics() {
@@ -483,7 +540,7 @@
         researchList.innerHTML = state.topics
           .map(
             (topic, idx) => `
-              <details class="research-topic" ${idx === 0 ? "open" : ""}>
+	              <details class="research-topic" data-topic-id="${topic.id}" ${idx === 0 || topic.inspectAgentId ? "open" : ""}>
                 <summary>
                   <input type="checkbox" ${topic.selected ? "checked" : ""} data-action="toggle" data-id="${topic.id}" />
                   <span class="topic-index">${topic.index}</span>
@@ -497,12 +554,13 @@
                   </span>
                   ${!topic.selected ? '<span class="badge plum">not selected</span>' : ""}
                 </summary>
-                <div class="research-details">
-                  <p><strong>Краткая выжимка:</strong> ${topic.summary}</p>
-                  <p><strong>Угол BAURUM:</strong> ${topic.angle}</p>
-                  <p><strong>Риск:</strong> ${topic.risk}</p>
-                  <p class="source-link"><strong>Источник:</strong> <a href="#">${topic.source}</a></p>
-                </div>
+	                <div class="research-details">
+	                  <p><strong>Краткая выжимка:</strong> ${topic.summary}</p>
+	                  <p><strong>Рабочий ракурс:</strong> ${topic.angle}</p>
+	                  <p><strong>Риск:</strong> ${topic.risk}</p>
+	                  <p class="source-link"><strong>Источник:</strong> <a href="#">${topic.source}</a></p>
+                    ${renderPromptWorkspace(topic)}
+	                </div>
               </details>
             `
           )
@@ -519,6 +577,10 @@
             <section class="draft-preview">
               <h3>Финальный Telegram draft</h3>
               <div class="draft-body">${escapeHtml(run.finalTelegramText)}</div>
+              <div class="field">
+                <label>Инструкция для переписывания</label>
+                <textarea id="modal-rewrite-instruction" placeholder="Например: сделай текст менее общим, добавь больше конкретики про изумруд и убери слабый CTA"></textarea>
+              </div>
             </section>
             <section class="agent-step-stack">
               ${run.steps
@@ -529,11 +591,15 @@
                         <strong>${escapeHtml(step.agentName)}</strong>
                         <span class="badge green">готово</span>
                       </summary>
-                      <div class="agent-prompt-box">
-                        <span>Internal prompt</span>
-                        <p>${escapeHtml(step.internalPrompt)}</p>
-                      </div>
-                      <pre>${formatJson(step.output)}</pre>
+	                      <div class="agent-prompt-box">
+	                        <span>Internal prompt</span>
+	                        <textarea data-role="modal-prompt-editor" data-agent-id="${step.agentId}">${escapeHtml(getAgentPrompt(step.agentId))}</textarea>
+                          <div class="topic-actions">
+                            <button class="secondary-button" data-action="save-modal-prompt" data-agent-id="${step.agentId}">Сохранить prompt</button>
+                            <button class="secondary-button" data-action="rerun-modal-topic" data-id="${topic.id}">Перезапустить с этим prompt</button>
+                          </div>
+	                      </div>
+	                      <pre>${formatJson(step.output)}</pre>
                     </details>
                   `
                 )
@@ -541,7 +607,7 @@
             </section>
           `;
           modalMeta.innerHTML = `<strong>Источник:</strong> ${escapeHtml(topic.source)}<br/><strong>Статус:</strong> ${escapeHtml(run.publishing.status)}<br/><strong>Публикация:</strong> ${escapeHtml(run.publishing.channel)} · ${escapeHtml(run.publishing.suggestedDate)}`;
-          modalVisual.innerHTML = `<span>${escapeHtml(run.visualBrief.concept)}</span>`;
+          modalVisual.innerHTML = run.visualAsset?.svg || `<span>${escapeHtml(run.visualBrief.concept)}</span>`;
         } else {
           modalBody.textContent = topic.article;
           modalMeta.innerHTML = `<strong>Источник:</strong> ${escapeHtml(topic.source)}<br/><strong>Статус:</strong> ${escapeHtml(topic.status)}`;
@@ -638,6 +704,18 @@
         }, delay);
       }
 
+      function runTopicChain(topic, rewriteInstruction = "") {
+        topic.status = "visual";
+        const run = window.BaurumWorkflow.runAgentChain(topic, {
+          preferredSources: preferredSourcesInput.value.trim(),
+          publicationWindow: "1-7 июня 2026",
+          prompts: state.promptOverrides,
+          rewriteInstruction
+        });
+        state.agentRuns = state.agentRuns.filter((item) => item.topicId !== topic.id).concat(run);
+        return run;
+      }
+
       function runSelected(event) {
         if (event?.currentTarget) flashButton(event.currentTarget, "Запущено");
         const selected = state.topics.filter((topic) => topic.selected).slice(0, 2);
@@ -648,12 +726,7 @@
             renderTopics();
           }, 450 + index * 250);
           setTimeout(() => {
-            topic.status = "visual";
-            const run = window.BaurumWorkflow.runAgentChain(topic, {
-              preferredSources: preferredSourcesInput.value.trim(),
-              publicationWindow: "1-7 июня 2026"
-            });
-            state.agentRuns = state.agentRuns.filter((item) => item.topicId !== topic.id).concat(run);
+            runTopicChain(topic);
             renderTopics();
             renderAgentRuns();
           }, 900 + index * 250);
@@ -693,6 +766,32 @@
           flashButton(target, "Открываю", 500);
           openArticle(topic);
         }
+
+        if (action === "inspect-step") {
+          event.preventDefault();
+          topic.inspectAgentId = target.dataset.agentId;
+          renderTopics();
+          const nextDetails = researchList.querySelector(`[data-topic-id="${topic.id}"]`);
+          if (nextDetails) nextDetails.open = true;
+        }
+
+        if (action === "save-prompt") {
+          event.preventDefault();
+          const editor = target.closest(".prompt-workspace")?.querySelector('[data-role="prompt-editor"]');
+          if (!editor) return;
+          savePromptOverride(target.dataset.agentId, editor.value);
+          flashButton(target, "Сохранено", 700);
+          renderTopics();
+        }
+
+        if (action === "rerun-topic" || action === "rewrite-topic") {
+          event.preventDefault();
+          const instruction = action === "rewrite-topic" ? "Перепиши текст так, чтобы он был конкретнее, глубже и пригоден для публикации BAURUM." : "";
+          runTopicChain(topic, instruction);
+          renderTopics();
+          renderAgentRuns();
+          openArticle(topic);
+        }
       });
 
       agentRunBoard.addEventListener("click", (event) => {
@@ -711,8 +810,8 @@
       document.getElementById("modal-image").addEventListener("click", () => {
         const topic = state.topics.find((item) => item.id === state.openedArticleId);
         if (!topic) return;
-        topic.status = "visual";
-        modalVisual.innerHTML = "<span>Тёплый editorial-визуал сгенерирован</span>";
+        const run = state.agentRuns.find((item) => item.topicId === topic.id) || runTopicChain(topic);
+        modalVisual.innerHTML = run.visualAsset?.svg || "<span>Тёплый editorial-визуал сгенерирован</span>";
         renderTopics();
       });
       document.getElementById("modal-approve").addEventListener("click", () => {
@@ -727,14 +826,37 @@
       document.getElementById("modal-rewrite").addEventListener("click", () => {
         const topic = state.topics.find((item) => item.id === state.openedArticleId);
         if (!topic) return;
-        topic.status = "writing";
+        const instruction = document.getElementById("modal-rewrite-instruction")?.value.trim() || "Перепиши текст сильнее: меньше общих слов, больше конкретики, спокойный BAURUM-тон.";
+        runTopicChain(topic, instruction);
         renderTopics();
-        closeArticle();
+        renderAgentRuns();
+        openArticle(topic);
+      });
+      modalBody.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+
+        if (target.dataset.action === "save-modal-prompt") {
+          const editor = target.closest(".agent-prompt-box")?.querySelector('[data-role="modal-prompt-editor"]');
+          if (!editor) return;
+          savePromptOverride(target.dataset.agentId, editor.value);
+          flashButton(target, "Сохранено", 700);
+        }
+
+        if (target.dataset.action === "rerun-modal-topic") {
+          const topic = state.topics.find((item) => item.id === target.dataset.id);
+          if (!topic) return;
+          runTopicChain(topic);
+          renderTopics();
+          renderAgentRuns();
+          openArticle(topic);
+        }
       });
       modal.addEventListener("click", (event) => {
         if (event.target === modal) closeArticle();
       });
 
+      loadPromptOverrides();
       loadPreferredSources();
       renderTopics();
       renderQueue();
