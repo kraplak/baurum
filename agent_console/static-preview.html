@@ -374,22 +374,25 @@
         if (!topic.inspectAgentId) return "";
         const agent = getAgent(topic.inspectAgentId);
         if (!agent) return "";
+        const isOpen = Boolean(topic.promptOpen);
 
         return `
-          <div class="prompt-workspace">
+          <div class="prompt-workspace ${isOpen ? "" : "compact"}">
             <div class="prompt-workspace-head">
               <div>
                 <strong>${escapeHtml(agent.name)}</strong>
-                <p>Нажмите «Изменить prompt», поправьте текст и сохраните. Следующий запуск цепочки возьмет именно этот prompt.</p>
+                <p>${isOpen ? "Поправьте prompt и сохраните. Следующий запуск цепочки возьмет именно этот prompt." : "Prompt выбранного агента скрыт, чтобы не занимать место."}</p>
               </div>
               <span class="badge ${state.promptOverrides[agent.id] ? "gold" : "green"}">${state.promptOverrides[agent.id] ? "изменен" : "default"}</span>
             </div>
-            <textarea data-role="prompt-editor" data-agent-id="${agent.id}" disabled>${escapeHtml(getAgentPrompt(agent.id))}</textarea>
+            ${isOpen ? `<textarea data-role="prompt-editor" data-agent-id="${agent.id}" disabled>${escapeHtml(getAgentPrompt(agent.id))}</textarea>` : ""}
             <div class="topic-actions">
-              <button class="secondary-button" data-action="edit-prompt" data-agent-id="${agent.id}">Изменить prompt</button>
-              <button class="secondary-button" data-action="save-prompt" data-agent-id="${agent.id}">Сохранить prompt</button>
-              <button class="secondary-button" data-action="rerun-topic" data-id="${topic.id}">Перезапустить цепочку</button>
-              <button class="primary-button" data-action="rewrite-topic" data-id="${topic.id}">Переписать текст</button>
+              ${isOpen ? `
+                <button class="secondary-button" data-action="edit-prompt" data-agent-id="${agent.id}">Изменить prompt</button>
+                <button class="secondary-button" data-action="save-prompt" data-agent-id="${agent.id}">Сохранить prompt</button>
+                <button class="secondary-button" data-action="close-prompt" data-id="${topic.id}">Свернуть prompt</button>
+              ` : `<button class="secondary-button" data-action="open-prompt" data-id="${topic.id}">Открыть prompt</button>`}
+              <button class="primary-button" data-action="rewrite-topic" data-id="${topic.id}">Переписать всю цепочку</button>
             </div>
           </div>
         `;
@@ -412,8 +415,7 @@
                     <span class="step-strip inline-steps">
                       ${statusSteps(topic)}
                       <button class="inline-action compact" data-action="open" data-id="${topic.id}">Открыть текст</button>
-                      <button class="inline-action compact muted-action" data-action="rerun-topic" data-id="${topic.id}">Перезапустить</button>
-                      <button class="inline-action compact strong-action" data-action="rewrite-topic" data-id="${topic.id}">Переписать</button>
+                      <button class="inline-action compact strong-action" data-action="rewrite-topic" data-id="${topic.id}">Переписать всю цепочку</button>
                     </span>
                   </span>
                   ${!topic.selected ? '<span class="badge plum">not selected</span>' : ""}
@@ -461,7 +463,7 @@
                           <div class="topic-actions">
                             <button class="secondary-button" data-action="edit-modal-prompt" data-agent-id="${step.agentId}">Изменить prompt</button>
                             <button class="secondary-button" data-action="save-modal-prompt" data-agent-id="${step.agentId}">Сохранить prompt</button>
-                            <button class="secondary-button" data-action="rerun-modal-topic" data-id="${topic.id}">Перезапустить с этим prompt</button>
+                            <button class="secondary-button" data-action="rerun-modal-topic" data-id="${topic.id}">Переписать всю цепочку с этим prompt</button>
                           </div>
 	                      </div>
 	                      <pre>${formatJson(step.output)}</pre>
@@ -641,6 +643,15 @@
         if (action === "inspect-step") {
           event.preventDefault();
           topic.inspectAgentId = target.dataset.agentId;
+          topic.promptOpen = false;
+          renderTopics();
+          const nextDetails = researchList.querySelector(`[data-topic-id="${topic.id}"]`);
+          if (nextDetails) nextDetails.open = true;
+        }
+
+        if (action === "open-prompt" || action === "close-prompt") {
+          event.preventDefault();
+          topic.promptOpen = action === "open-prompt";
           renderTopics();
           const nextDetails = researchList.querySelector(`[data-topic-id="${topic.id}"]`);
           if (nextDetails) nextDetails.open = true;
@@ -665,10 +676,9 @@
           renderTopics();
         }
 
-        if (action === "rerun-topic" || action === "rewrite-topic") {
+        if (action === "rewrite-topic") {
           event.preventDefault();
-          const instruction = action === "rewrite-topic" ? "Перепиши текст так, чтобы он был конкретнее, глубже и пригоден для публикации BAURUM." : "";
-          runTopicChain(topic, instruction);
+          runTopicChain(topic, "Перепиши всю цепочку заново: проверь источник, обнови стратегию, заново напиши текст, отредактируй и подготовь визуал.");
           renderTopics();
           renderAgentRuns();
           openArticle(topic);

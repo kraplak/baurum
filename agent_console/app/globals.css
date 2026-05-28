@@ -1104,6 +1104,11 @@ button.step:hover {
   gap: 10px;
 }
 
+.prompt-workspace.compact {
+  background: #fffdf8;
+  padding: 10px 12px;
+}
+
 .prompt-workspace-head {
   display: flex;
   align-items: flex-start;
