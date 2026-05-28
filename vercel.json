@@ -1,0 +1,5 @@
+{
+  "buildCommand": "echo 'Static BAURUM Agent Console'",
+  "installCommand": "echo 'No install required for static MVP'",
+  "outputDirectory": "agent_console"
+}
