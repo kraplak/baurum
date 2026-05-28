@@ -79,6 +79,19 @@
             </div>
           </section>
 
+          <section class="panel agent-cycle-panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Тестовый цикл агентов</h2>
+                <p class="panel-note">Запускает 1-2 выбранные темы через Content Director, Research, Strategy, Writer, Editor и Visual. Сейчас это безопасный workflow simulator без внешнего API.</p>
+              </div>
+              <span class="badge green" id="agent-cycle-status">готов к тесту</span>
+            </div>
+            <div class="agent-run-board" id="agent-run-board">
+              <div class="agent-empty">Нажмите «Запустить выбранные», чтобы увидеть цепочку, prompts и результаты каждого агента.</div>
+            </div>
+          </section>
+
           <section class="panel">
             <div class="panel-header">
               <div>
@@ -297,6 +310,7 @@
       </article>
     </div>
 
+    <script src="./app/workflow-simulator.js"></script>
     <script>
       const topics = [
         {
@@ -433,7 +447,8 @@
 
       const state = {
         topics: topics.map((topic) => ({ ...topic })),
-        openedArticleId: null
+        openedArticleId: null,
+        agentRuns: []
       };
 
       const researchList = document.querySelector(".research-list");
@@ -449,6 +464,21 @@
       const modalBody = document.getElementById("modal-body");
       const modalMeta = document.getElementById("modal-meta");
       const modalVisual = document.getElementById("modal-visual");
+      const agentRunBoard = document.getElementById("agent-run-board");
+      const agentCycleStatus = document.getElementById("agent-cycle-status");
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function formatJson(value) {
+        return escapeHtml(JSON.stringify(value, null, 2));
+      }
 
       function statusSteps(topic) {
         const order = ["Research", "Selected", "Writing", "Edit", "Visual", "Approve"];
@@ -506,11 +536,44 @@
       }
 
       function openArticle(topic) {
+        const run = state.agentRuns.find((item) => item.topicId === topic.id);
         state.openedArticleId = topic.id;
         modalTitle.textContent = topic.title;
-        modalBody.textContent = topic.article;
-        modalMeta.innerHTML = `<strong>Источник:</strong> ${topic.source}<br/><strong>Статус:</strong> ${topic.status}`;
-        modalVisual.innerHTML = `<span>${topic.status === "visual" || topic.status === "approved" ? "Визуальное направление готово" : "Изображение ещё не сгенерировано"}</span>`;
+
+        if (run) {
+          modalBody.innerHTML = `
+            <section class="draft-preview">
+              <h3>Финальный Telegram draft</h3>
+              <div class="draft-body">${escapeHtml(run.finalTelegramText)}</div>
+            </section>
+            <section class="agent-step-stack">
+              ${run.steps
+                .map(
+                  (step) => `
+                    <details class="agent-step-card">
+                      <summary>
+                        <strong>${escapeHtml(step.agentName)}</strong>
+                        <span class="badge green">готово</span>
+                      </summary>
+                      <div class="agent-prompt-box">
+                        <span>Internal prompt</span>
+                        <p>${escapeHtml(step.internalPrompt)}</p>
+                      </div>
+                      <pre>${formatJson(step.output)}</pre>
+                    </details>
+                  `
+                )
+                .join("")}
+            </section>
+          `;
+          modalMeta.innerHTML = `<strong>Источник:</strong> ${escapeHtml(topic.source)}<br/><strong>Статус:</strong> ${escapeHtml(run.publishing.status)}<br/><strong>Публикация:</strong> ${escapeHtml(run.publishing.channel)} · ${escapeHtml(run.publishing.suggestedDate)}`;
+          modalVisual.innerHTML = `<span>${escapeHtml(run.visualBrief.concept)}</span>`;
+        } else {
+          modalBody.textContent = topic.article;
+          modalMeta.innerHTML = `<strong>Источник:</strong> ${escapeHtml(topic.source)}<br/><strong>Статус:</strong> ${escapeHtml(topic.status)}`;
+          modalVisual.innerHTML = `<span>${topic.status === "visual" || topic.status === "approved" ? "Визуальное направление готово" : "Изображение ещё не сгенерировано"}</span>`;
+        }
+
         modal.setAttribute("aria-hidden", "false");
       }
 
@@ -536,6 +599,44 @@
           `;
           queueList.appendChild(card);
         });
+      }
+
+      function renderAgentRuns() {
+        if (!state.agentRuns.length) {
+          agentRunBoard.innerHTML = '<div class="agent-empty">Нажмите «Запустить выбранные», чтобы увидеть цепочку, prompts и результаты каждого агента.</div>';
+          agentCycleStatus.textContent = "готов к тесту";
+          return;
+        }
+
+        agentCycleStatus.textContent = `${state.agentRuns.length} цикл(а) готово`;
+        agentRunBoard.innerHTML = state.agentRuns
+          .map((run) => {
+            const topic = state.topics.find((item) => item.id === run.topicId);
+            return `
+              <article class="agent-run-card">
+                <div class="agent-run-header">
+                  <div>
+                    <div class="queue-title">${escapeHtml(topic?.title ?? run.topicId)}</div>
+                    <p class="muted">${escapeHtml(run.publishing.channel)} · ${escapeHtml(run.publishing.suggestedDate)} · ${escapeHtml(run.publishing.status)}</p>
+                  </div>
+                  <button class="inline-action compact" data-action="open" data-id="${escapeHtml(run.topicId)}">Открыть результат</button>
+                </div>
+                <div class="agent-chain">
+                  ${run.steps
+                    .map(
+                      (step) => `
+                        <div class="agent-node">
+                          <strong>${escapeHtml(step.agentName)}</strong>
+                          <span>${escapeHtml(step.internalPrompt.slice(0, 92))}...</span>
+                        </div>
+                      `
+                    )
+                    .join("")}
+                </div>
+              </article>
+            `;
+          })
+          .join("");
       }
 
       function loadPreferredSources() {
@@ -565,7 +666,7 @@
 
       function runSelected(event) {
         if (event?.currentTarget) flashButton(event.currentTarget, "Запущено");
-        const selected = state.topics.filter((topic) => topic.selected);
+        const selected = state.topics.filter((topic) => topic.selected).slice(0, 2);
         selected.forEach((topic, index) => {
           topic.status = "writing";
           setTimeout(() => {
@@ -574,10 +675,17 @@
           }, 450 + index * 250);
           setTimeout(() => {
             topic.status = "visual";
+            const run = window.BaurumWorkflow.runAgentChain(topic, {
+              preferredSources: preferredSourcesInput.value.trim(),
+              publicationWindow: "1-7 июня 2026"
+            });
+            state.agentRuns = state.agentRuns.filter((item) => item.topicId !== topic.id).concat(run);
             renderTopics();
+            renderAgentRuns();
           }, 900 + index * 250);
         });
         renderTopics();
+        renderAgentRuns();
       }
 
       function refreshUnselected(event) {
@@ -611,6 +719,15 @@
           flashButton(target, "Открываю", 500);
           openArticle(topic);
         }
+      });
+
+      agentRunBoard.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        if (target.dataset.action !== "open") return;
+        const topic = state.topics.find((item) => item.id === target.dataset.id);
+        if (!topic) return;
+        openArticle(topic);
       });
 
       document.getElementById("start-selected").addEventListener("click", runSelected);
@@ -647,6 +764,7 @@
       loadPreferredSources();
       renderTopics();
       renderQueue();
+      renderAgentRuns();
     </script>
   </body>
 </html>
