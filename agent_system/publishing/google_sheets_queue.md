@@ -1,112 +1,68 @@
-# Google Sheets Publishing Queue
+# Google Sheets Publishing Table
 
-Google Sheets is the operational publishing queue for BAURUM content.
-The console and agents prepare rows; a Telegram publisher script reads due rows
-on a timer and updates the status after publication.
+Google Sheets stays the operational publishing schedule for BAURUM Telegram
+posts.
 
-This is the same operational model as the lunar calendar workflow: the table is
-easy to inspect, easy to correct manually, and the automation has one clear job.
+The logic is intentionally simple and keeps the existing lunar-calendar
+workflow: the bot reads publication date and time from the sheet and posts the
+row to Telegram when that moment arrives.
+
+## Main Columns
+
+| Column | Meaning |
+| --- | --- |
+| A | Publication date |
+| B | Publication time |
+| C | Title |
+| D | Main text |
+| E | Image URL, optional |
+
+The lunar calendar and new BAURUM articles can live in the same table. New
+articles are appended as normal future rows with the same date/time/title/text
+structure.
+
+## Optional Service Columns
+
+These columns may be added to the right, but they are not required for the bot
+to publish:
+
+| Header | Meaning |
+| --- | --- |
+| `status` or `статус` | `published`, `failed`, `skip`, etc. |
+| `published_at` or `опубликовано` | Actual publication time |
+| `telegram_message_id` or `message_id` | Telegram message id |
+| `publish_error` or `ошибка` | Last publication error |
+
+If service columns exist, the bot writes publication results there. If they do
+not exist, publication still works.
 
 ## Publishing Flow
 
 ```text
-Agent Console / weekly workflow
-  -> creates draft and visual brief
-  -> Pavel approves or edits
-  -> approved row is written to Google Sheets
-  -> Apps Script trigger checks due rows every few minutes
-  -> Telegram bot publishes approved/scheduled rows
-  -> sheet is updated with status, published_at, telegram_message_id, errors
+Google Sheet row with future date/time
+  -> publisher bot schedules the row
+  -> Telegram post is sent at the scheduled moment
+  -> optional service columns are updated
+  -> old rows remain in the sheet as archive
 ```
 
-The UI may keep a direct Telegram publish button only as a smoke-test/manual
-fallback. The default production path is scheduled publication from Google
-Sheets.
+## Monthly Lunar Calendar Update
 
-## Sheet Name
+The lunar-calendar rows should be updated as a whole monthly block from one
+trusted source. Do not patch the month week by week from mixed sources, because
+that can create date/time drift and duplicate or missing posts.
 
-`Content Publishing Queue`
+The intended routine is:
 
-## Columns
+1. Pick one source for the next month.
+2. Prepare the full next-month lunar cycle.
+3. Replace or append the relevant future calendar rows.
+4. Keep already published rows as archive.
+5. Add separate BAURUM article rows below/around the calendar rows with normal
+   future publication dates.
 
-1. `content_id`
-2. `status`
-3. `channel`
-4. `scheduled_at`
-5. `published_at`
-6. `title`
-7. `post_text`
-8. `cta`
-9. `visual_asset_url`
-10. `visual_brief`
-11. `utm_source`
-12. `utm_medium`
-13. `utm_campaign`
-14. `approval_by`
-15. `approval_notes`
-16. `telegram_message_id`
-17. `publish_error`
-18. `last_attempt_at`
-19. `attempt_count`
-20. `source_workflow`
-21. `source_topic_id`
-22. `source_url`
-23. `content_type`
-24. `performance_views`
-25. `performance_reactions`
-26. `performance_replies`
-27. `performance_clicks`
-28. `learning_notes`
+## Agent Console Rule
 
-## Status Values
-
-- `draft_review`
-- `needs_changes`
-- `approved`
-- `scheduled`
-- `publishing`
-- `published`
-- `failed`
-- `archived`
-
-## Publishing Rule
-
-Only rows with `status = approved` or `status = scheduled` and
-`scheduled_at <= now()` may be published by the downstream Telegram script.
-
-After publishing, the script should set:
-
-- `status = published`;
-- `published_at`;
-- `telegram_message_id`, if available.
-
-If publishing fails, the script should set:
-
-- `status = failed`;
-- `publish_error`;
-- `last_attempt_at`;
-- increment `attempt_count`.
-
-## Approval Rule
-
-The agent system may create rows but must not silently publish. Human approval is
-required until Pavel explicitly changes this policy.
-
-For automatic publishing, the human approval point is the row status:
-once Pavel or an editor sets `status` to `approved` / `scheduled`, the bot may
-publish it when `scheduled_at` arrives.
-
-## Lunar Calendar Compatibility
-
-The lunar calendar can use the same queue with:
-
-- `source_workflow = lunar_calendar`;
-- `content_type = lunar_day`;
-- `title = lunar day headline`;
-- `post_text = final Telegram post`;
-- `scheduled_at = exact publication datetime`;
-- `channel = telegram`;
-- `status = scheduled` or `approved`.
-
-This lets lunar calendar posts and generated BAURUM articles publish through the
-same Telegram bot and the same sheet.
+When the console says `Опубликовать`, it should add a normal future row to this
+table. It should not bypass the table and should not invent another publishing
+queue.

@@ -53,25 +53,25 @@ The old Git remote points to `git@github.com:zerlik/Astro_t_p_bot.git`.
 
 ## Migration Decision
 
-Use the old bot as the technical base, but run the new implementation in:
+Use the old bot as the technical base, but keep Pavel's simple sheet logic.
+The new implementation lives in:
 
 `publisher_bot/`
 
 The new bot:
 
-- reads the shared BAURUM queue tab `Content Publishing Queue`;
-- publishes only rows with `status = approved` or `status = scheduled`;
-- publishes only rows where `scheduled_at <= now`;
-- writes result back to the sheet;
-- stores `telegram_message_id`;
-- marks failures as `failed`;
-- keeps the table as the operational truth.
+- reads columns A-E: date, time, title, text, optional image;
+- schedules future rows exactly like the old lunar-calendar bot;
+- keeps old lunar-calendar publishing behavior;
+- can also publish new BAURUM article rows appended below the calendar rows;
+- writes status/message id/error only if optional service columns exist.
 
 ## Installation Plan
 
 1. Copy or create the Google Sheet in Pavel's Google Drive.
-2. Add a tab named `Content Publishing Queue`.
-3. Add columns from `google_sheets_queue.md`.
+2. Keep the simple columns A-E: date, time, title, text, optional image.
+3. Optionally add service columns to the right: `status`, `published_at`,
+   `telegram_message_id`, `publish_error`.
 4. Create a Google service account.
 5. Share the Google Sheet with the service-account email.
 6. Create or reconnect the Telegram bot through `@BotFather`.

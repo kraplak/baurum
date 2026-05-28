@@ -1,56 +1,50 @@
 # BAURUM Telegram Publisher Bot
 
-This bot is adapted from the old lunar calendar Telegram publisher.
+This bot keeps the existing lunar-calendar publishing logic.
 
-It reads approved or scheduled rows from Google Sheets and publishes due rows to
-the BAURUM Telegram channel. After each attempt it writes the result back to the
-sheet, so the table stays the operational source of truth.
+The Google Sheet is the publishing schedule. The bot reads rows, checks the
+date/time, and posts the row to the BAURUM Telegram channel when the time
+comes.
 
-## What The Old Bot Did
+## Sheet Structure
 
-The archived bot was a Python worker:
+The main columns stay simple:
 
-- `bot.py` used `gspread` to read one Google Sheet.
-- `aiogram` sent messages to Telegram.
-- `APScheduler` planned future posts in memory.
-- `Procfile` ran it as a Heroku-style worker: `worker: python bot.py`.
-- It expected environment variables for Telegram, Google credentials, sheet id,
-  timezone, and optional error channel.
+| Column | Meaning |
+| --- | --- |
+| A | Publication date |
+| B | Publication time |
+| C | Title |
+| D | Main text |
+| E | Image URL, optional |
 
-The old bot read these lunar calendar columns:
+The bot does not require extra workflow columns.
 
-- `Дата публикации`
-- `Время публикации`
-- `Номер лунного дня`
-- `Начало лунного дня дата`
-- `Начало лунного дня время`
-- `Текст публикации`
+Optional service columns may be added to the right:
 
-It did not write publication status back to the table.
+| Column header | Meaning |
+| --- | --- |
+| `status` or `статус` | `published`, `failed`, etc. |
+| `published_at` or `опубликовано` | Actual publication time |
+| `telegram_message_id` or `message_id` | Telegram message id |
+| `publish_error` or `ошибка` | Last publication error |
 
-## New Queue Columns
+If those service columns are present, the bot updates them. If they are absent,
+the bot still publishes normally.
 
-This publisher uses the shared BAURUM queue from
-`../agent_system/publishing/google_sheets_queue.md`.
+## How It Works
 
-Required columns:
+1. Reads the configured worksheet.
+2. Uses columns A-E as the source of truth.
+3. Schedules every future row with date, time, and text/title.
+4. Publishes at the scheduled moment.
+5. Re-syncs the sheet every few minutes.
+6. Skips rows marked `published`, `failed`, `skip`, or `archived` when a status
+   column exists.
 
-- `status`
-- `channel`
-- `scheduled_at`
-- `post_text`
-
-Recommended columns:
-
-- `content_id`
-- `published_at`
-- `title`
-- `telegram_message_id`
-- `publish_error`
-- `last_attempt_at`
-- `attempt_count`
-- `source_workflow`
-- `content_type`
+This preserves the old lunar-calendar behavior: past rows stay in the sheet as
+archive, future rows are the active schedule, and once a month the lunar-cycle
+dates can be updated for the next period.
 
 ## Environment
 
@@ -61,10 +55,12 @@ TELEGRAM_TOKEN=
 CHANNEL_ID=
 ERROR_CHANNEL_ID=
 GOOGLE_SHEET_ID=
-GOOGLE_WORKSHEET_NAME=Content Publishing Queue
+GOOGLE_WORKSHEET_NAME=Лунный календарь
 GOOGLE_CREDENTIALS=
+GOOGLE_CREDENTIALS_FILE=
 LOCAL_TZ=Europe/Warsaw
 SYNC_EVERY_MINUTES=5
+SHEET_HAS_HEADER=true
 ```
 
 `GOOGLE_CREDENTIALS` may be a full service-account JSON string. Alternatively,
@@ -74,12 +70,11 @@ Do not commit real tokens or service-account JSON.
 
 ## Google Setup
 
-1. Create or copy the publishing Google Sheet into Pavel's Google Drive.
-2. Add a tab named `Content Publishing Queue`.
-3. Add the queue columns from `../agent_system/publishing/google_sheets_queue.md`.
-4. Create a Google Cloud service account.
-5. Share the Google Sheet with the service-account email.
-6. Put the service-account JSON into the server as `GOOGLE_CREDENTIALS`.
+1. Copy or create the lunar-calendar sheet in Pavel's Google Drive.
+2. Keep the columns A-E as described above.
+3. Create a Google Cloud service account.
+4. Share the Google Sheet with the service-account email.
+5. Put the service-account JSON into the server as `GOOGLE_CREDENTIALS`.
 
 ## Telegram Setup
 
@@ -103,7 +98,7 @@ python bot.py
 
 This is a long-running worker, so it should run on Render, Railway, Fly.io,
 Heroku-style workers, or a VPS. Vercel serverless functions are not the right
-place for this specific scheduler because they do not stay alive.
+place for this scheduler because they do not stay alive.
 
 The command is:
 
@@ -113,13 +108,13 @@ python bot.py
 
 ## Test Row
 
-Add one row with:
+Add one future row:
 
-- `status`: `scheduled`
-- `channel`: `telegram`
-- `scheduled_at`: a time 5 minutes in the future, for example
-  `2026-06-01 10:00`
-- `post_text`: short test text
+- A: tomorrow's date
+- B: time 5 minutes ahead
+- C: test title
+- D: test text
+- E: optional image URL
 
-When the bot publishes, it changes the row to `published`, fills
-`published_at`, and stores `telegram_message_id`.
+The bot should publish it at the scheduled time. If service columns exist, it
+will also mark the row as `published`.

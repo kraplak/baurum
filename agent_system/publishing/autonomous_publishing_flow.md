@@ -1,102 +1,70 @@
 # Autonomous Publishing Flow
 
-This is the target BAURUM publishing logic for Telegram and later other
-channels.
+This is the target BAURUM publishing logic for Telegram.
 
 ## Principle
 
-The agent console should not be the final publisher in normal operation.
-The console prepares content and sends approved material into a Google Sheets
-publishing queue. A scheduled publisher reads that queue and posts due rows to
-Telegram.
+Google Sheets is the publishing schedule. The bot should not invent a separate
+queue. It should publish the same way the lunar calendar already works:
 
-This matches the existing lunar calendar workflow: the table is visible,
-editable, auditable, and easy to debug.
+```text
+Google Sheet row A-E
+  -> date and time become the schedule
+  -> publisher bot sends the row to Telegram
+  -> old rows remain as archive
+```
 
-## System Roles
+## Sheet Structure
 
-### Agent Console
+| Column | Meaning |
+| --- | --- |
+| A | Publication date |
+| B | Publication time |
+| C | Title |
+| D | Main text |
+| E | Image URL, optional |
 
-- runs topic research and writing chains;
-- lets Pavel review topics and final drafts;
-- writes approved/scheduled rows into Google Sheets;
-- shows queue status for convenience.
+Optional service columns may be added to the right for status and diagnostics,
+but they must not change the core A-E logic.
 
-### Google Sheets
+## Lunar Calendar
 
-The sheet is the operational source of truth for publication.
+The lunar calendar is updated as a full monthly block from one trusted source.
+Do not update it weekly from mixed sources.
 
-It stores:
+Routine:
 
-- content text;
-- schedule;
-- status;
-- channel;
-- source workflow;
-- publication result;
-- errors;
-- Telegram message id.
+1. Once a month, find or use one trusted source for the next month.
+2. Prepare the full lunar-cycle date/time block.
+3. Update future lunar-calendar rows.
+4. Leave already published rows as archive.
+5. Let the bot keep publishing rows by date and time.
 
-### Apps Script / Publisher Bot
+## New BAURUM Articles
 
-Runs on a timer.
+Generated articles use the same table logic.
 
-It:
+When Pavel approves a generated article, the console should append a normal
+future row:
 
-- reads `Content Publishing Queue`;
-- finds rows with `status = approved` or `scheduled`;
-- checks `scheduled_at <= now`;
-- posts `post_text` to Telegram;
-- writes back `published_at`, `telegram_message_id`, or `publish_error`.
+- A: publication date;
+- B: publication time;
+- C: title;
+- D: final Telegram text;
+- E: optional image URL.
 
-### Telegram Bot
-
-The bot only publishes. It does not decide what should be published.
-The decision is represented by row status and schedule.
+The publisher bot then posts it like any other scheduled row.
 
 ## MVP Test Cycle
 
-1. Move the lunar calendar table into Pavel's Google account.
-2. Add a tab named `Content Publishing Queue`.
-3. Add columns from `google_sheets_queue.md`.
-4. Install `google_apps_script_telegram_publisher.js` in the sheet.
-5. Create or reconnect the Telegram bot through `@BotFather`.
-6. Add bot token and target chat/channel ID to Apps Script Properties.
-7. Add the bot as admin to the Telegram channel.
-8. Add one test row:
-   - `status = scheduled`;
-   - `scheduled_at = now + 5 minutes`;
-   - `channel = telegram`;
-   - `post_text = short test post`.
-9. Wait for the trigger to publish.
-10. Confirm the row becomes `published` and gets `telegram_message_id`.
-
-## Content Types
-
-The same queue should publish:
-
-- lunar calendar posts;
-- weekly BAURUM blog/Telegram posts;
-- article announcements;
-- Instagram/Reels captions later, if a separate publisher adapter exists.
-
-Use `source_workflow` to distinguish:
-
-- `lunar_calendar`;
-- `astro_weekly_content`;
-- `manual`;
-- `blog_article`;
-- `instagram_adaptation`.
+1. Copy the current lunar-calendar Google Sheet into Pavel's Google Drive.
+2. Keep columns A-E.
+3. Share the sheet with the Google service-account email.
+4. Set `GOOGLE_SHEET_ID`, `GOOGLE_WORKSHEET_NAME`, Telegram token, and channel id.
+5. Run `publisher_bot`.
+6. Add one test row scheduled 5 minutes ahead.
+7. Confirm the bot publishes it.
 
 ## Important Rule
 
-Automation can publish only rows that are explicitly approved or scheduled.
-Draft rows must never be published.
-
-Human control stays in the table:
-
-- edit text;
-- change scheduled date;
-- set status;
-- inspect published rows;
-- inspect failed rows.
+No weekly lunar-calendar patching. One source, one full monthly update.
