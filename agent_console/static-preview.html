@@ -392,7 +392,7 @@
                 <button class="secondary-button" data-action="save-prompt" data-agent-id="${agent.id}">Сохранить prompt</button>
                 <button class="secondary-button" data-action="close-prompt" data-id="${topic.id}">Свернуть prompt</button>
               ` : `<button class="secondary-button" data-action="open-prompt" data-id="${topic.id}">Открыть prompt</button>`}
-              <button class="primary-button" data-action="rewrite-topic" data-id="${topic.id}">Переписать всю цепочку</button>
+              <button class="primary-button" data-action="rewrite-topic" data-id="${topic.id}">Перезапустить</button>
             </div>
           </div>
         `;
@@ -415,7 +415,7 @@
                     <span class="step-strip inline-steps">
                       ${statusSteps(topic)}
                       <button class="inline-action compact" data-action="open" data-id="${topic.id}">Открыть текст</button>
-                      <button class="inline-action compact strong-action" data-action="rewrite-topic" data-id="${topic.id}">Переписать всю цепочку</button>
+                      <button class="inline-action compact strong-action" data-action="rewrite-topic" data-id="${topic.id}">Перезапустить</button>
                     </span>
                   </span>
                   ${!topic.selected ? '<span class="badge plum">not selected</span>' : ""}
@@ -463,7 +463,7 @@
                           <div class="topic-actions">
                             <button class="secondary-button" data-action="edit-modal-prompt" data-agent-id="${step.agentId}">Изменить prompt</button>
                             <button class="secondary-button" data-action="save-modal-prompt" data-agent-id="${step.agentId}">Сохранить prompt</button>
-                            <button class="secondary-button" data-action="rerun-modal-topic" data-id="${topic.id}">Переписать всю цепочку с этим prompt</button>
+                            <button class="secondary-button" data-action="rerun-modal-topic" data-id="${topic.id}">Перезапустить с этим prompt</button>
                           </div>
 	                      </div>
 	                      <pre>${formatJson(step.output)}</pre>
