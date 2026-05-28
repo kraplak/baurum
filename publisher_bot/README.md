@@ -12,13 +12,16 @@ The main columns stay simple:
 
 | Column | Meaning |
 | --- | --- |
-| A | Publication date |
+| A | Publication date, keep the existing `YYYY.MM.DD` format |
 | B | Publication time |
-| C | Title |
-| D | Main text |
-| E | Image URL, optional |
+| C | Lunar day number or article title |
+| D | Lunar day start date |
+| E | Lunar day start time |
+| F | Main text |
+| G | Image URL, optional |
 
-The bot does not require extra workflow columns.
+The bot does not require extra workflow columns. Do not change the date format
+in column A: the working table intentionally uses year, then month, then day.
 
 Optional service columns may be added to the right:
 
@@ -35,7 +38,7 @@ the bot still publishes normally.
 ## How It Works
 
 1. Reads the configured worksheet.
-2. Uses columns A-E as the source of truth.
+2. Uses columns A-G as the source of truth.
 3. Schedules every future row with date, time, and text/title.
 4. Publishes at the scheduled moment.
 5. Re-syncs the sheet every few minutes.
@@ -55,7 +58,7 @@ TELEGRAM_TOKEN=
 CHANNEL_ID=
 ERROR_CHANNEL_ID=
 GOOGLE_SHEET_ID=
-GOOGLE_WORKSHEET_NAME=Лунный календарь
+GOOGLE_WORKSHEET_NAME=Лист1
 GOOGLE_CREDENTIALS=
 GOOGLE_CREDENTIALS_FILE=
 LOCAL_TZ=Europe/Warsaw
@@ -71,7 +74,7 @@ Do not commit real tokens or service-account JSON.
 ## Google Setup
 
 1. Copy or create the lunar-calendar sheet in Pavel's Google Drive.
-2. Keep the columns A-E as described above.
+2. Keep the columns A-G as described above.
 3. Create a Google Cloud service account.
 4. Share the Google Sheet with the service-account email.
 5. Put the service-account JSON into the server as `GOOGLE_CREDENTIALS`.
@@ -112,9 +115,11 @@ Add one future row:
 
 - A: tomorrow's date
 - B: time 5 minutes ahead
-- C: test title
-- D: test text
-- E: optional image URL
+- C: test title or lunar day number
+- D: lunar start date, optional for non-lunar articles
+- E: lunar start time, optional for non-lunar articles
+- F: test text
+- G: optional image URL
 
 The bot should publish it at the scheduled time. If service columns exist, it
 will also mark the row as `published`.

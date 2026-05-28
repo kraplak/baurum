@@ -11,15 +11,20 @@ row to Telegram when that moment arrives.
 
 | Column | Meaning |
 | --- | --- |
-| A | Publication date |
+| A | Publication date, keep the existing `YYYY.MM.DD` format |
 | B | Publication time |
-| C | Title |
-| D | Main text |
-| E | Image URL, optional |
+| C | Lunar day number or article title |
+| D | Lunar day start date |
+| E | Lunar day start time |
+| F | Main text |
+| G | Image URL, optional |
 
 The lunar calendar and new BAURUM articles can live in the same table. New
-articles are appended as normal future rows with the same date/time/title/text
-structure.
+articles are appended as normal future rows. For articles, column C can be the
+title, D/E can stay empty, and F contains the final text.
+
+Do not change the date format in column A. The working bot/table uses
+year-month-day order, for example `2026.05.28`.
 
 ## Optional Service Columns
 

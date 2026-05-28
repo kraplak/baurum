@@ -8,7 +8,7 @@ Google Sheets is the publishing schedule. The bot should not invent a separate
 queue. It should publish the same way the lunar calendar already works:
 
 ```text
-Google Sheet row A-E
+Google Sheet row A-G
   -> date and time become the schedule
   -> publisher bot sends the row to Telegram
   -> old rows remain as archive
@@ -18,14 +18,19 @@ Google Sheet row A-E
 
 | Column | Meaning |
 | --- | --- |
-| A | Publication date |
+| A | Publication date, keep the existing `YYYY.MM.DD` format |
 | B | Publication time |
-| C | Title |
-| D | Main text |
-| E | Image URL, optional |
+| C | Lunar day number or article title |
+| D | Lunar day start date |
+| E | Lunar day start time |
+| F | Main text |
+| G | Image URL, optional |
 
 Optional service columns may be added to the right for status and diagnostics,
-but they must not change the core A-E logic.
+but they must not change the core A-G logic.
+
+Do not rewrite the date format in column A. The current working format is
+year-month-day, for example `2026.05.28`.
 
 ## Lunar Calendar
 
@@ -50,15 +55,16 @@ future row:
 - A: publication date;
 - B: publication time;
 - C: title;
-- D: final Telegram text;
-- E: optional image URL.
+- D/E: empty for normal articles;
+- F: final Telegram text;
+- G: optional image URL.
 
 The publisher bot then posts it like any other scheduled row.
 
 ## MVP Test Cycle
 
 1. Copy the current lunar-calendar Google Sheet into Pavel's Google Drive.
-2. Keep columns A-E.
+2. Keep columns A-G.
 3. Share the sheet with the Google service-account email.
 4. Set `GOOGLE_SHEET_ID`, `GOOGLE_WORKSHEET_NAME`, Telegram token, and channel id.
 5. Run `publisher_bot`.

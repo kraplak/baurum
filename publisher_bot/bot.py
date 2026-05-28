@@ -5,6 +5,7 @@ import html
 import json
 import logging
 import os
+import re
 import traceback
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
@@ -30,7 +31,7 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
 ERROR_CHANNEL_ID = os.getenv("ERROR_CHANNEL_ID")
 SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
-WORKSHEET_NAME = os.getenv("GOOGLE_WORKSHEET_NAME", "Лунный календарь")
+WORKSHEET_NAME = os.getenv("GOOGLE_WORKSHEET_NAME", "Лист1")
 LOCAL_TZ_NAME = os.getenv("LOCAL_TZ", "Europe/Warsaw")
 SYNC_EVERY_MINUTES = int(os.getenv("SYNC_EVERY_MINUTES", "5"))
 SHEET_HAS_HEADER = os.getenv("SHEET_HAS_HEADER", "true").lower() != "false"
@@ -115,7 +116,7 @@ def excel_date_to_datetime(value: Any) -> Optional[datetime]:
 
     raw = str(value).strip()
     try:
-        if raw.replace(".", "", 1).isdigit():
+        if re.fullmatch(r"\d+(\.\d+)?", raw):
             return datetime(1899, 12, 30) + timedelta(days=float(raw))
     except ValueError:
         pass
@@ -180,8 +181,6 @@ def sanitize_html(text: str) -> str:
     allowed_tags = ["a", "b", "i", "u", "s", "blockquote", "pre", "code"]
     escaped = html.escape(text)
 
-    import re
-
     tag_pattern = re.compile(
         r"<(/?)(" + "|".join(allowed_tags) + r")(\s[^>]*)?>",
         re.IGNORECASE,
@@ -194,12 +193,22 @@ def sanitize_html(text: str) -> str:
 
 
 def format_message(row: Dict[str, Any]) -> str:
-    title = sanitize_html(str(row.get("title", "")).strip())
+    lunar_day_or_title = sanitize_html(str(row.get("lunar_day_or_title", "")).strip())
+    lunar_start_date = sanitize_html(str(row.get("lunar_start_date", "")).strip())
+    lunar_start_time = sanitize_html(str(row.get("lunar_start_time", "")).strip())
     body = sanitize_html(str(row.get("text", "")).strip())
 
-    if title and body:
-        return f"<b>{title}</b>\n\n{body}"
-    return body or title
+    if lunar_day_or_title and lunar_start_date and lunar_start_time and body:
+        parts = [
+            f"<b>Сегодня {lunar_day_or_title} лунные сутки</b>",
+            f"<i>{lunar_start_date}, начало в {lunar_start_time}</i>",
+        ]
+        return "\n".join(parts) + "\n\n" + body
+
+    if lunar_day_or_title and body:
+        return f"<b>{lunar_day_or_title}</b>\n\n{body}"
+
+    return body or lunar_day_or_title
 
 
 def build_job_id(row: Dict[str, Any], run_at_utc: datetime) -> str:
@@ -209,7 +218,9 @@ def build_job_id(row: Dict[str, Any], run_at_utc: datetime) -> str:
             run_at_utc.isoformat(),
             str(row.get("date", "")),
             str(row.get("time", "")),
-            str(row.get("title", "")),
+            str(row.get("lunar_day_or_title", "")),
+            str(row.get("lunar_start_date", "")),
+            str(row.get("lunar_start_time", "")),
             str(row.get("text", "")),
         ]
     )
@@ -246,14 +257,16 @@ def load_rows() -> tuple[List[str], Dict[str, int], List[Dict[str, Any]]]:
 
     records: List[Dict[str, Any]] = []
     for index, values_row in enumerate(rows, start=start_row):
-        padded = values_row + [""] * max(0, 5 - len(values_row))
+        padded = values_row + [""] * max(0, 7 - len(values_row))
         record = {
             "row_number": index,
             "date": padded[0],
             "time": padded[1],
-            "title": padded[2],
-            "text": padded[3],
-            "image_url": padded[4],
+            "lunar_day_or_title": padded[2],
+            "lunar_start_date": padded[3],
+            "lunar_start_time": padded[4],
+            "text": padded[5],
+            "image_url": padded[6],
         }
         if optional_cols.get("status") and len(values_row) >= optional_cols["status"]:
             record["status"] = values_row[optional_cols["status"] - 1]

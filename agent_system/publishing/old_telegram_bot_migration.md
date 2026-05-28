@@ -60,7 +60,8 @@ The new implementation lives in:
 
 The new bot:
 
-- reads columns A-E: date, time, title, text, optional image;
+- reads columns A-G: date, time, lunar day/title, lunar start date, lunar start
+  time, text, optional image;
 - schedules future rows exactly like the old lunar-calendar bot;
 - keeps old lunar-calendar publishing behavior;
 - can also publish new BAURUM article rows appended below the calendar rows;
@@ -69,7 +70,8 @@ The new bot:
 ## Installation Plan
 
 1. Copy or create the Google Sheet in Pavel's Google Drive.
-2. Keep the simple columns A-E: date, time, title, text, optional image.
+2. Keep the simple working columns A-G: date, time, lunar day/title, lunar start
+   date, lunar start time, text, optional image.
 3. Optionally add service columns to the right: `status`, `published_at`,
    `telegram_message_id`, `publish_error`.
 4. Create a Google service account.
