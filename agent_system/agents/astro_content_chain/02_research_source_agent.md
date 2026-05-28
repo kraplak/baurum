@@ -53,6 +53,19 @@ their useful meaning into Russian. Preserve original source URLs.
 
 For weekly discovery, perform all of these searches:
 
+Before proposing a candidate, separate astrology systems:
+
+- `jyotish_sidereal`: Vedic/Jyotish, rashi/nakshatra, sidereal calculations.
+- `western_tropical`: tropical signs, Western aspect/ingress language.
+- `astronomical_ephemeris`: raw astronomy/ephemeris facts without interpretive
+  system.
+
+Default BAURUM topic selection must be `jyotish_sidereal`. A Western/tropical
+topic may appear only in an `adjacent_context` bucket and must not be presented
+as a Jyotish transit. If a tropical source says "Mercury enters Cancer" while a
+Jyotish source says "Budha in Mithuna/Gemini", the candidate must use the
+Jyotish framing or be rejected for the main list.
+
 0. **Preferred source pass**
    - First check Pavel's preferred sources list.
    - These sources are trusted for inspiration, article structure, tone, and
@@ -76,6 +89,8 @@ For weekly discovery, perform all of these searches:
      aspects, and outer-planet shifts for the requested week.
    - Record dates, times, zodiac signs, and source URLs.
    - Mark factual data separately from interpretation.
+   - Cross-check sign placement with at least one Jyotish/sidereal source before
+     using a sign-based topic in the main BAURUM list.
 
 2. **Astrologer / publication search**
    - Find current articles, forecasts, or posts from astrologers and astrology
@@ -162,6 +177,8 @@ When full text is stored, pass only its artifact reference to the next agent.
 
 - Do not invent sources.
 - Do not invent exact transit dates or timings.
+- Do not mix tropical and sidereal sign placements.
+- Do not place Western/tropical sign ingresses in the main Jyotish topic list.
 - Do not use BAURUM lunar calendar text as the research source for this workflow.
 - Do not present astrological interpretations as facts.
 - Do not write final BAURUM copy.
