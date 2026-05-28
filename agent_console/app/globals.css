@@ -798,6 +798,16 @@ h1 {
   padding: 12px;
 }
 
+.queue-card.empty-slot {
+  background: #fbfaf7;
+  border-style: dashed;
+}
+
+.queue-card.filled-slot {
+  border-color: #bfd8d0;
+  background: #f7fbf9;
+}
+
 .source-title,
 .queue-title {
   font-weight: 700;

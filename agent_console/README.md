@@ -76,9 +76,32 @@ Then open:
 http://localhost:4173/static-preview.html
 ```
 
-## Telegram Publishing
+## Publishing Queue
 
-The preview has a real publish adapter at `/api/publish-telegram`.
+The production publishing path is:
+
+```text
+Agent Console -> Google Sheets Content Publishing Queue -> Apps Script -> Telegram
+```
+
+In the UI, `Approve → в таблицу` means:
+
+- final draft is approved;
+- the console chooses the next free weekly slot;
+- the row is scheduled for Google Sheets;
+- Telegram publishes it later from the sheet.
+
+See:
+
+- `../agent_system/publishing/google_sheets_queue.md`
+- `../agent_system/publishing/google_apps_script_telegram_publisher.js`
+- `../agent_system/publishing/autonomous_publishing_flow.md`
+
+## Telegram Publishing Smoke Test
+
+The repo still has a direct publish adapter at `/api/publish-telegram`.
+Use it only for backend smoke testing or a manual fallback. The normal user flow
+should publish from Google Sheets.
 
 Required Vercel environment variables:
 
@@ -93,6 +116,6 @@ Setup:
 2. Add the bot as an admin to the target channel or group.
 3. Put the bot token and chat ID into Vercel Environment Variables.
 4. Redeploy the project.
-5. In the console, open a generated draft and click `Опубликовать в Telegram`.
+5. POST a draft to `/api/publish-telegram` for a smoke test.
 
 Without these variables the button returns a setup error and does not publish.
