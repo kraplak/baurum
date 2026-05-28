@@ -84,7 +84,7 @@ The production publishing path is:
 Agent Console -> Google Sheets Content Publishing Queue -> Apps Script -> Telegram
 ```
 
-In the UI, `Approve → в таблицу` means:
+In the UI, `Опубликовать` means:
 
 - final draft is approved;
 - the console chooses the next free weekly slot;
