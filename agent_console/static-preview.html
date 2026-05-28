@@ -159,8 +159,10 @@
           <div class="article-meta" id="modal-meta"></div>
         </div>
         <footer class="article-modal-actions">
+          <span class="publish-status" id="modal-publish-status"></span>
           <button class="secondary-button" id="modal-rewrite">На доработку</button>
           <button class="secondary-button" id="modal-image">Сгенерировать изображение</button>
+          <button class="secondary-button" id="modal-publish-telegram">Опубликовать в Telegram</button>
           <button class="primary-button" id="modal-approve">Утвердить в очередь</button>
         </footer>
       </article>
@@ -296,6 +298,7 @@
       const modalBody = document.getElementById("modal-body");
       const modalMeta = document.getElementById("modal-meta");
       const modalVisual = document.getElementById("modal-visual");
+      const modalPublishStatus = document.getElementById("modal-publish-status");
       const agentRunBoard = document.getElementById("agent-run-board");
       const agentCycleStatus = document.getElementById("agent-cycle-status");
 
@@ -436,6 +439,7 @@
         const run = state.agentRuns.find((item) => item.topicId === topic.id);
         state.openedArticleId = topic.id;
         modalTitle.textContent = topic.title;
+        setPublishStatus("");
 
         if (run) {
           modalBody.innerHTML = `
@@ -485,6 +489,11 @@
 
       function closeArticle() {
         modal.setAttribute("aria-hidden", "true");
+      }
+
+      function setPublishStatus(message, tone = "") {
+        modalPublishStatus.textContent = message;
+        modalPublishStatus.dataset.tone = tone;
       }
 
       function renderQueue() {
@@ -582,6 +591,43 @@
         });
         state.agentRuns = state.agentRuns.filter((item) => item.topicId !== topic.id).concat(run);
         return run;
+      }
+
+      async function publishOpenedArticleToTelegram() {
+        const topic = state.topics.find((item) => item.id === state.openedArticleId);
+        if (!topic) return;
+        const run = state.agentRuns.find((item) => item.topicId === topic.id) || runTopicChain(topic);
+        const publishButton = document.getElementById("modal-publish-telegram");
+        publishButton.disabled = true;
+        setPublishStatus("Публикую в Telegram...", "pending");
+
+        try {
+          const response = await fetch("/api/publish-telegram", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              topicId: topic.id,
+              title: topic.title,
+              text: run.finalTelegramText
+            })
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.ok) {
+            const setup = result.setup ? ` ${result.setup}` : "";
+            throw new Error(`${result.error || "Telegram publish failed"}.${setup}`);
+          }
+
+          topic.status = "approved";
+          topic.selected = true;
+          setPublishStatus(`Опубликовано в Telegram, message ${result.messageId}`, "success");
+          renderTopics();
+          renderQueue();
+        } catch (error) {
+          setPublishStatus(error.message || "Не удалось опубликовать в Telegram", "error");
+        } finally {
+          publishButton.disabled = false;
+        }
       }
 
       function runSelected(event) {
@@ -708,6 +754,7 @@
         modalVisual.innerHTML = run.visualAsset?.svg || "<span>Тёплый editorial-визуал сгенерирован</span>";
         renderTopics();
       });
+      document.getElementById("modal-publish-telegram").addEventListener("click", publishOpenedArticleToTelegram);
       document.getElementById("modal-approve").addEventListener("click", () => {
         const topic = state.topics.find((item) => item.id === state.openedArticleId);
         if (!topic) return;

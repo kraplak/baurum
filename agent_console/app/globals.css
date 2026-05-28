@@ -986,6 +986,25 @@ button.step:hover {
   justify-content: flex-end;
 }
 
+.publish-status {
+  margin-right: auto;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.publish-status[data-tone="success"] {
+  color: var(--green);
+}
+
+.publish-status[data-tone="error"] {
+  color: #9b2f24;
+}
+
+.publish-status[data-tone="pending"] {
+  color: #805c1f;
+}
+
 .article-modal-body {
   padding: 16px;
   overflow: auto;

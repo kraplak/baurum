@@ -75,3 +75,24 @@ Then open:
 ```text
 http://localhost:4173/static-preview.html
 ```
+
+## Telegram Publishing
+
+The preview has a real publish adapter at `/api/publish-telegram`.
+
+Required Vercel environment variables:
+
+```text
+TELEGRAM_BOT_TOKEN=123456:bot-token-from-botfather
+TELEGRAM_CHAT_ID=@your_channel_or_numeric_chat_id
+```
+
+Setup:
+
+1. Create a bot in Telegram through `@BotFather`.
+2. Add the bot as an admin to the target channel or group.
+3. Put the bot token and chat ID into Vercel Environment Variables.
+4. Redeploy the project.
+5. In the console, open a generated draft and click `Опубликовать в Telegram`.
+
+Without these variables the button returns a setup error and does not publish.
