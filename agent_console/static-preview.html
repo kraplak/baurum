@@ -682,7 +682,7 @@
         }, delay);
       }
 
-      function runTopicChain(topic, rewriteInstruction = "") {
+      function runTopicChain(topic, rewriteInstruction = "", generatedText = "") {
         topic.status = "visual";
         const run = window.BaurumWorkflow.runAgentChain(topic, {
           preferredSources: preferredSourcesInput.value.trim(),
@@ -690,25 +690,68 @@
           prompts: state.promptOverrides,
           rewriteInstruction
         });
+        if (generatedText) {
+          run.finalTelegramText = generatedText;
+          const editorStep = run.steps.find((step) => step.agentId === "editor");
+          if (editorStep?.output) {
+            editorStep.output.finalTelegramText = generatedText;
+            editorStep.output.status = "draft_review";
+          }
+        }
         state.agentRuns = state.agentRuns.filter((item) => item.topicId !== topic.id).concat(run);
         return run;
       }
 
-      function runSelected(event) {
-        if (event?.currentTarget) flashButton(event.currentTarget, "Запущено");
+      async function generateArticleText(topic, rewriteInstruction = "") {
+        if (window.location.protocol === "file:") {
+          throw new Error("Откройте консоль через Vercel или localhost, чтобы работала реальная генерация.");
+        }
+
+        const response = await fetch("/api/generate-article", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            topic,
+            preferredSources: preferredSourcesInput.value.trim(),
+            prompts: state.promptOverrides,
+            rewriteInstruction
+          })
+        });
+        const result = await response.json().catch(() => null);
+
+        if (!response.ok || !result?.ok) {
+          throw new Error(result?.error || "OpenAI generation failed");
+        }
+
+        return result.text;
+      }
+
+      async function runRealTopicChain(topic, rewriteInstruction = "") {
+        topic.status = "writing";
+        renderTopics();
+        renderAgentRuns();
+
+        const generatedText = await generateArticleText(topic, rewriteInstruction);
+        return runTopicChain(topic, rewriteInstruction, generatedText);
+      }
+
+      async function runSelected(event) {
+        if (event?.currentTarget) flashButton(event.currentTarget, "Запускаю");
         const selected = state.topics.filter((topic) => topic.selected).slice(0, 2);
-        selected.forEach((topic, index) => {
-          topic.status = "writing";
-          setTimeout(() => {
-            topic.status = "edit";
-            renderTopics();
-          }, 450 + index * 250);
-          setTimeout(() => {
-            runTopicChain(topic);
+        agentCycleStatus.textContent = "генерация через OpenAI...";
+
+        for (const topic of selected) {
+          try {
+            await runRealTopicChain(topic);
+          } catch (error) {
+            topic.status = "research";
+            agentCycleStatus.textContent = `Ошибка генерации: ${error.message}`;
             renderTopics();
             renderAgentRuns();
-          }, 900 + index * 250);
-        });
+            return;
+          }
+        }
+
         renderTopics();
         renderAgentRuns();
       }
@@ -787,10 +830,17 @@
 
         if (action === "rewrite-topic") {
           event.preventDefault();
-          runTopicChain(topic, "Перепиши всю цепочку заново: проверь источник, обнови стратегию, заново напиши текст, отредактируй и подготовь визуал.");
-          renderTopics();
-          renderAgentRuns();
-          openArticle(topic);
+          const instruction = "Перепиши всю цепочку заново: проверь источник, обнови стратегию, заново напиши текст, отредактируй и подготовь визуал.";
+          generateArticleText(topic, instruction)
+            .then((text) => {
+              runTopicChain(topic, instruction, text);
+              renderTopics();
+              renderAgentRuns();
+              openArticle(topic);
+            })
+            .catch((error) => {
+              agentCycleStatus.textContent = `Ошибка генерации: ${error.message}`;
+            });
         }
       });
 
@@ -823,10 +873,18 @@
         const topic = state.topics.find((item) => item.id === state.openedArticleId);
         if (!topic) return;
         const instruction = document.getElementById("modal-rewrite-instruction")?.value.trim() || "Перепиши текст сильнее: меньше общих слов, больше конкретики, спокойный BAURUM-тон.";
-        runTopicChain(topic, instruction);
-        renderTopics();
-        renderAgentRuns();
-        openArticle(topic);
+        setPublishStatus("Переписываю через OpenAI...", "pending");
+        generateArticleText(topic, instruction)
+          .then((text) => {
+            runTopicChain(topic, instruction, text);
+            renderTopics();
+            renderAgentRuns();
+            openArticle(topic);
+            setPublishStatus("Текст переписан", "success");
+          })
+          .catch((error) => {
+            setPublishStatus(`Не переписано: ${error.message}`, "error");
+          });
       });
       modalBody.addEventListener("click", (event) => {
         const target = event.target;
@@ -851,10 +909,16 @@
         if (target.dataset.action === "rerun-modal-topic") {
           const topic = state.topics.find((item) => item.id === target.dataset.id);
           if (!topic) return;
-          runTopicChain(topic);
-          renderTopics();
-          renderAgentRuns();
-          openArticle(topic);
+          generateArticleText(topic)
+            .then((text) => {
+              runTopicChain(topic, "", text);
+              renderTopics();
+              renderAgentRuns();
+              openArticle(topic);
+            })
+            .catch((error) => {
+              agentCycleStatus.textContent = `Ошибка генерации: ${error.message}`;
+            });
         }
       });
       modal.addEventListener("click", (event) => {

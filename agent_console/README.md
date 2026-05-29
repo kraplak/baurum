@@ -122,6 +122,15 @@ GOOGLE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n
 
 The Google Sheet must be shared with the service-account email as Editor.
 
+Required Vercel environment variables for real article generation:
+
+```text
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4.1-mini
+```
+
+`OPENAI_MODEL` is optional. The default is `gpt-4.1-mini`.
+
 ## Telegram Publishing Smoke Test
 
 The repo still has a direct publish adapter at `/api/publish-telegram`.
