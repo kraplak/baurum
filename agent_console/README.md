@@ -81,21 +81,46 @@ http://localhost:4173/static-preview.html
 The production publishing path is:
 
 ```text
-Agent Console -> Google Sheets Content Publishing Queue -> Apps Script -> Telegram
+Agent Console -> Google Sheet row -> Telegram publisher bot
 ```
 
 In the UI, `Опубликовать` means:
 
 - final draft is approved;
 - the console chooses the next free weekly slot;
-- the row is scheduled for Google Sheets;
+- `/api/append-sheet` appends a normal row to the existing Moon Calendar sheet;
 - Telegram publishes it later from the sheet.
+
+The appended row uses the working sheet format:
+
+- `A`: publication date as `YYYY.MM.DD`;
+- `B`: publication time;
+- `C`: title;
+- `D/E`: empty for normal articles;
+- `F`: final Telegram text;
+- `G`: image URL, if available later.
 
 See:
 
 - `../agent_system/publishing/google_sheets_queue.md`
-- `../agent_system/publishing/google_apps_script_telegram_publisher.js`
 - `../agent_system/publishing/autonomous_publishing_flow.md`
+
+Required Vercel environment variables for Google Sheets writes:
+
+```text
+GOOGLE_CREDENTIALS={"type":"service_account",...}
+GOOGLE_SHEET_ID=1GfCDBsWKi0IrhxdLZdIwmMjTfLfY9A_1g1iNE5cu6kE
+GOOGLE_SHEET_NAME=Лист1
+```
+
+Alternatively, use:
+
+```text
+GOOGLE_CLIENT_EMAIL=service-account@project.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n
+```
+
+The Google Sheet must be shared with the service-account email as Editor.
 
 ## Telegram Publishing Smoke Test
 

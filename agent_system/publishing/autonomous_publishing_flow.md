@@ -61,6 +61,10 @@ future row:
 
 The publisher bot then posts it like any other scheduled row.
 
+The console writes through `/api/append-sheet`. That endpoint needs Google
+service-account credentials in the deployment environment and the Moon Calendar
+sheet shared with that service account.
+
 ## MVP Test Cycle
 
 1. Copy the current lunar-calendar Google Sheet into Pavel's Google Drive.

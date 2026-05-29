@@ -544,7 +544,40 @@
         return buildWeeklySlots().find((slot) => !used.has(slot.datetime));
       }
 
-      function approveOpenedArticleToQueue() {
+      function parseSlotForSheet(datetime) {
+        const [datePart, timePart] = datetime.split(" ");
+        const [year, month, day] = datePart.split("-");
+        return {
+          sheetDate: `${year}.${month}.${day}`,
+          sheetTime: timePart
+        };
+      }
+
+      async function appendArticleToSheet({ topic, run, slot }) {
+        if (window.location.protocol === "file:") {
+          throw new Error("Откройте консоль через Vercel или localhost, чтобы работала запись в Google Sheet.");
+        }
+
+        const response = await fetch("/api/append-sheet", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            scheduledAt: slot.datetime,
+            title: topic.title,
+            text: run.finalTelegramText,
+            imageUrl: ""
+          })
+        });
+        const result = await response.json().catch(() => null);
+
+        if (!response.ok || !result?.ok) {
+          throw new Error(result?.error || "Google Sheet append failed");
+        }
+
+        return result;
+      }
+
+      async function approveOpenedArticleToQueue() {
         const topic = state.topics.find((item) => item.id === state.openedArticleId);
         if (!topic) return;
         const run = state.agentRuns.find((item) => item.topicId === topic.id) || runTopicChain(topic);
@@ -554,6 +587,16 @@
           return;
         }
 
+        setPublishStatus("Записываю строку в Google Sheet...", "pending");
+
+        try {
+          await appendArticleToSheet({ topic, run, slot });
+        } catch (error) {
+          setPublishStatus(`Не записано в Google Sheet: ${error.message}`, "error");
+          return;
+        }
+
+        const sheetSlot = parseSlotForSheet(slot.datetime);
         topic.status = "approved";
         topic.selected = true;
         state.publishingQueue = state.publishingQueue
@@ -569,7 +612,7 @@
             sourceUrl: topic.source
           });
 
-        setPublishStatus(`Запланировано в Google Sheets: ${slot.label}`, "success");
+        setPublishStatus(`Записано в Google Sheet: ${sheetSlot.sheetDate} · ${sheetSlot.sheetTime}`, "success");
         renderTopics();
         renderQueue();
       }
