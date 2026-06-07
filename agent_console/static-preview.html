@@ -42,8 +42,8 @@
             <h1>План контента: 1–7 июня</h1>
           </div>
           <div class="topbar-actions">
-            <button class="secondary-button">Авто-ресёрч: воскресенье 08:00</button>
-            <button class="primary-button">Запустить выбранные</button>
+            <button class="secondary-button" id="header-search-topics">Поиск</button>
+            <button class="primary-button" id="header-start-selected">Запустить выбранные</button>
           </div>
         </header>
 
@@ -83,7 +83,7 @@
             <div class="panel-header">
               <div>
                 <h2 class="panel-title">Тестовый цикл агентов</h2>
-                <p class="panel-note">Запускает 1-2 выбранные темы через Content Director, Research, Strategy, Writer, Editor и Visual. Темы ниже заменены на проверенный seed research от 28 мая; сама цепочка пока работает как безопасный simulator без внешнего API.</p>
+                <p class="panel-note">Запускает 1-2 выбранные темы через Content Director, Research, Strategy, Writer, Editor и Visual. Новые темы появляются после ручного поиска; генерация текста и запись в таблицу работают через подключенные API.</p>
               </div>
               <span class="badge green" id="agent-cycle-status">готов к тесту</span>
             </div>
@@ -104,10 +104,10 @@
             <div class="selection-toolbar">
               <div>
                 <strong id="selected-count">Выбрано: 2 / 7</strong>
-                <p class="muted">Откройте строку, чтобы прочитать summary источника. Refresh обновляет только невыбранные варианты.</p>
+                <p class="muted">Нажмите «Поиск», чтобы найти новые 30 реальных тем в интернете. Потом выберите нужные и запустите цепочку.</p>
               </div>
               <div class="topbar-actions">
-                <button class="secondary-button" id="refresh-unselected">Обновить невыбранные</button>
+                <button class="secondary-button" id="search-topics">Поиск</button>
                 <button class="primary-button" id="start-selected">Запустить выбранные</button>
               </div>
             </div>
@@ -795,7 +795,7 @@
         return normalizeResearchTopics(result.topics || []);
       }
 
-      async function refreshUnselected(event) {
+      async function searchTopics(event) {
         if (event?.currentTarget) flashButton(event.currentTarget, "Ищу...");
         agentCycleStatus.textContent = "Research Agent ищет 30 тем в интернете...";
         try {
@@ -902,7 +902,9 @@
       });
 
       document.getElementById("start-selected").addEventListener("click", runSelected);
-      document.getElementById("refresh-unselected").addEventListener("click", refreshUnselected);
+      document.getElementById("header-start-selected").addEventListener("click", runSelected);
+      document.getElementById("search-topics").addEventListener("click", searchTopics);
+      document.getElementById("header-search-topics").addEventListener("click", searchTopics);
       savePreferredSources.addEventListener("click", savePreferredSourcesToBrowser);
       sourcePreferencesPanel?.querySelector(".panel-header")?.addEventListener("click", (event) => {
         if (event.target instanceof HTMLElement && event.target.closest("button")) return;
