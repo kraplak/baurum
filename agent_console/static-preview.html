@@ -281,6 +281,8 @@
         openedArticleId: null,
         agentRuns: [],
         promptOverrides: {},
+        runInProgress: false,
+        runProgressMessage: "",
         publishingQueue: [
           {
             contentId: "lunar-day-seed-001",
@@ -624,11 +626,18 @@
       function renderAgentRuns() {
         if (!state.agentRuns.length) {
           agentRunBoard.innerHTML = '<div class="agent-empty">Нажмите «Запустить выбранные», чтобы увидеть цепочку, prompts и результаты каждого агента.</div>';
-          agentCycleStatus.textContent = "готов к тесту";
+          if (state.runInProgress) {
+            agentRunBoard.innerHTML = `<div class="agent-empty">${escapeHtml(state.runProgressMessage || "Идёт генерация поста...")}</div>`;
+            agentCycleStatus.textContent = state.runProgressMessage || "идёт генерация...";
+          } else if (!agentCycleStatus.textContent.startsWith("Выберите")) {
+            agentCycleStatus.textContent = "готов к тесту";
+          }
           return;
         }
 
-        agentCycleStatus.textContent = `${state.agentRuns.length} цикл(а) готово`;
+        if (!state.runInProgress) {
+          agentCycleStatus.textContent = `${state.agentRuns.length} цикл(а) готово`;
+        }
         agentRunBoard.innerHTML = state.agentRuns
           .map((run) => {
             const topic = state.topics.find((item) => item.id === run.topicId);
@@ -756,6 +765,8 @@
 
       async function runRealTopicChain(topic, rewriteInstruction = "") {
         topic.status = "writing";
+        state.runProgressMessage = `Writing: пишу пост по теме «${topic.title}»...`;
+        agentCycleStatus.textContent = state.runProgressMessage;
         renderTopics();
         renderAgentRuns();
 
@@ -769,10 +780,11 @@
         if (!selected.length) {
           agentCycleStatus.textContent = "Выберите хотя бы одну тему перед запуском.";
           renderTopics();
-          renderAgentRuns();
           return;
         }
 
+        state.runInProgress = true;
+        state.runProgressMessage = "Запускаю цепочку...";
         agentCycleStatus.textContent = "генерация через OpenAI...";
 
         for (const topic of selected) {
@@ -780,6 +792,8 @@
             await runRealTopicChain(topic);
           } catch (error) {
             topic.status = "research";
+            state.runInProgress = false;
+            state.runProgressMessage = "";
             agentCycleStatus.textContent = `Ошибка генерации: ${error.message}`;
             renderTopics();
             renderAgentRuns();
@@ -787,6 +801,8 @@
           }
         }
 
+        state.runInProgress = false;
+        state.runProgressMessage = "";
         renderTopics();
         renderAgentRuns();
         agentCycleStatus.textContent = `${selected.length} пост(а) готово. Откройте текст в выбранной карточке.`;
