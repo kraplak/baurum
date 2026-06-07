@@ -42,8 +42,8 @@
             <h1>План контента: 1–7 июня</h1>
           </div>
           <div class="topbar-actions">
-            <button class="secondary-button" id="header-search-topics">Поиск</button>
-            <button class="primary-button" id="header-start-selected">Запустить выбранные</button>
+            <button class="secondary-button" id="header-search-topics">Запрос Codex</button>
+            <button class="primary-button" id="header-start-selected">Запросить тексты</button>
           </div>
         </header>
 
@@ -60,7 +60,7 @@
             <div class="panel-header">
               <div>
                 <h2 class="panel-title">Предпочитаемые источники</h2>
-                <p class="panel-note">Ресёрчер проверяет их первыми. Приоритет — ведическая астрология / Джйотиш. Все выдачи на русском.</p>
+                <p class="panel-note">Codex учитывает их первыми. Приоритет — ведическая астрология / Джйотиш. Все выдачи на русском.</p>
               </div>
               <button class="secondary-button" id="save-preferred-sources">Сохранить</button>
             </div>
@@ -72,8 +72,8 @@
                   <p class="field-hint" id="preferred-sources-status">Пока не сохранено. В MVP сохраняется локально в этом браузере.</p>
                 </div>
                 <div class="preferred-source-help">
-                  <strong>Как агент это использует</strong>
-                  <p class="muted">Research & Source Agent сначала проверяет эти ресурсы, приоритизирует Джйотиш-темы и отмечает связь с камнями только там, где она естественна. Хорошие невыбранные темы уходят в банк тем.</p>
+                  <strong>Как Codex это использует</strong>
+                  <p class="muted">Codex сначала проверяет эти ресурсы, приоритизирует Джйотиш-темы и отмечает связь с камнями только там, где она естественна. Хорошие невыбранные темы уходят в локальный банк источников.</p>
                 </div>
               </div>
             </div>
@@ -82,13 +82,34 @@
           <section class="panel agent-cycle-panel">
             <div class="panel-header">
               <div>
-                <h2 class="panel-title">Тестовый цикл агентов</h2>
-                <p class="panel-note">Запускает 1-2 выбранные темы через Content Director, Research, Strategy, Writer, Editor и Visual. Новые темы появляются после ручного поиска; генерация текста и запись в таблицу работают через подключенные API.</p>
+                <h2 class="panel-title">Ручной цикл с Codex</h2>
+                <p class="panel-note">Без токенов и автоматического расхода баланса. Codex ищет реальные статьи в чате, вы выбираете темы, затем Codex пишет посты и заносит их в Google Sheet.</p>
               </div>
-              <span class="badge green" id="agent-cycle-status">готов к тесту</span>
+              <span class="badge green" id="agent-cycle-status">ручной режим</span>
             </div>
             <div class="agent-run-board" id="agent-run-board">
-              <div class="agent-empty">Нажмите «Запустить выбранные», чтобы увидеть цепочку, prompts и результаты каждого агента.</div>
+              <div class="agent-empty">Нажмите «Запрос Codex», чтобы сформировать задание на 20 новых статей. Внешние ключи не используются.</div>
+            </div>
+          </section>
+
+          <section class="panel manual-console-panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Импорт подборки Codex</h2>
+                <p class="panel-note">Когда Codex пришлёт 20 найденных статей, вставьте JSON сюда. Сайт сохранит ссылки в локальный банк, чтобы не показывать одно и то же в следующих поисках.</p>
+              </div>
+              <span class="badge gold" id="manual-search-count">поиск 0</span>
+            </div>
+            <div class="content-area">
+              <div class="field">
+                <label>Подборка статей от Codex</label>
+                <textarea id="manual-import" placeholder='{"topics":[{"title":"...","source":"https://...","article":"800 символов выжимки","kind":"article"}]}'></textarea>
+                <p class="field-hint" id="manual-import-status">Можно вставить JSON-массив или объект {"topics":[...]}.</p>
+              </div>
+              <div class="topic-actions">
+                <button class="secondary-button" id="copy-manual-request">Скопировать запрос для Codex</button>
+                <button class="primary-button" id="import-manual-topics">Загрузить подборку</button>
+              </div>
             </div>
           </section>
 
@@ -96,7 +117,7 @@
             <div class="panel-header">
               <div>
                 <h2 class="panel-title">Темы ресёрча</h2>
-                <p class="panel-note">Недельный ресёрч с приоритетом Джйотиш. Выберите 5–7 тем для блога; сильные невыбранные темы останутся в банке.</p>
+                <p class="panel-note">Только реальные статьи с URL. Выжимка — около 800 символов, чтобы можно было понять смысл источника до выбора.</p>
               </div>
               <span class="badge gold" id="found-count">0 из 20 показано</span>
             </div>
@@ -104,11 +125,11 @@
             <div class="selection-toolbar">
               <div>
                 <strong id="selected-count">Выбрано: 0 / 7</strong>
-                <p class="muted">Нажмите «Поиск», чтобы найти 20 новых реальных тем в интернете. Потом выберите нужные и запустите цепочку.</p>
+                <p class="muted">Нажмите «Запрос Codex», затем отправьте мне сформированный запрос в чат. После моей подборки загрузите JSON и выберите темы.</p>
               </div>
               <div class="topbar-actions">
-                <button class="secondary-button" id="search-topics">Поиск</button>
-                <button class="primary-button" id="start-selected">Запустить выбранные</button>
+                <button class="secondary-button" id="search-topics">Запрос Codex</button>
+                <button class="primary-button" id="start-selected">Запросить тексты</button>
               </div>
             </div>
 
@@ -284,6 +305,7 @@
         runInProgress: false,
         runProgressMessage: "",
         runErrorMessage: "",
+        manualSearchCount: Number(window.localStorage.getItem("baurum.manualSearchCount") || "0"),
         publishingQueue: [
           {
             contentId: "lunar-day-seed-001",
@@ -305,6 +327,9 @@
       const preferredSourcesStatus = document.getElementById("preferred-sources-status");
       const savePreferredSources = document.getElementById("save-preferred-sources");
       const sourcePreferencesPanel = document.querySelector(".source-preferences-panel");
+      const manualImportInput = document.getElementById("manual-import");
+      const manualImportStatus = document.getElementById("manual-import-status");
+      const manualSearchCount = document.getElementById("manual-search-count");
       const modal = document.getElementById("article-modal");
       const modalTitle = document.getElementById("modal-title");
       const modalBody = document.getElementById("modal-body");
@@ -329,6 +354,10 @@
 
       function topicPreview(topic) {
         return topic.article || topic.summary || topic.preview || "";
+      }
+
+      function updateManualSearchBadge() {
+        manualSearchCount.textContent = `поиск ${state.manualSearchCount}`;
       }
 
       const stepAgentMap = {
@@ -418,7 +447,7 @@
         selectedCount.textContent = `Выбрано: ${state.topics.filter((topic) => topic.selected).length} / 7`;
 
         if (!state.topics.length) {
-          researchList.innerHTML = '<div class="agent-empty">Нажмите «Поиск», чтобы запустить новый web research и получить 20 реальных тем.</div>';
+          researchList.innerHTML = '<div class="agent-empty">Нажмите «Запрос Codex», отправьте запрос в чат, а потом загрузите сюда JSON-подборку из 20 реальных статей.</div>';
           return;
         }
 
@@ -435,7 +464,7 @@
                     <span class="step-strip inline-steps">
                       ${statusSteps(topic)}
                       <button class="inline-action compact" data-action="open" data-id="${topic.id}">Открыть текст</button>
-                      <button class="inline-action compact strong-action" data-action="rewrite-topic" data-id="${topic.id}">Перезапустить</button>
+                      <button class="inline-action compact strong-action" data-action="rewrite-topic" data-id="${topic.id}">Задание Codex</button>
                     </span>
                   </span>
                 </summary>
@@ -495,9 +524,18 @@
           modalMeta.innerHTML = `<strong>Источник:</strong> ${escapeHtml(topic.source)}<br/><strong>Статус:</strong> ${escapeHtml(run.publishing.status)}<br/><strong>Публикация:</strong> ${escapeHtml(run.publishing.channel)} · ${escapeHtml(run.publishing.suggestedDate)}`;
           modalVisual.innerHTML = run.visualAsset?.svg || `<span>${escapeHtml(run.visualBrief.concept)}</span>`;
         } else {
-          modalBody.textContent = topic.article;
-          modalMeta.innerHTML = `<strong>Источник:</strong> ${escapeHtml(topic.source)}<br/><strong>Статус:</strong> ${escapeHtml(topic.status)}`;
-          modalVisual.innerHTML = `<span>${topic.status === "visual" || topic.status === "approved" ? "Визуальное направление готово" : "Изображение ещё не сгенерировано"}</span>`;
+          modalBody.innerHTML = `
+            <section class="draft-preview">
+              <h3>Выжимка источника</h3>
+              <div class="draft-body">${escapeHtml(topicPreview(topic))}</div>
+              <div class="field">
+                <label>Следующий шаг</label>
+                <textarea disabled>Выберите эту тему и нажмите «Запросить тексты». Codex напишет пост в чате и занесёт утвержденный текст в Google Sheet.</textarea>
+              </div>
+            </section>
+          `;
+          modalMeta.innerHTML = `<strong>Источник:</strong> <a href="${escapeHtml(topic.source)}" target="_blank" rel="noreferrer">${escapeHtml(topic.source)}</a><br/><strong>Статус:</strong> ${escapeHtml(topic.status)}`;
+          modalVisual.innerHTML = `<span>В ручном режиме изображение готовит Codex после выбора темы</span>`;
         }
 
         modal.setAttribute("aria-hidden", "false");
@@ -560,46 +598,12 @@
         };
       }
 
-      async function appendArticleToSheet({ topic, run, slot }) {
-        if (window.location.protocol === "file:") {
-          throw new Error("Откройте консоль через Vercel или localhost, чтобы работала запись в Google Sheet.");
-        }
-
-        const response = await fetch("/api/append-sheet", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            scheduledAt: slot.datetime,
-            title: topic.title,
-            text: run.finalTelegramText,
-            imageUrl: ""
-          })
-        });
-        const result = await response.json().catch(() => null);
-
-        if (!response.ok || !result?.ok) {
-          throw new Error(result?.error || "Google Sheet append failed");
-        }
-
-        return result;
-      }
-
       async function approveOpenedArticleToQueue() {
         const topic = state.topics.find((item) => item.id === state.openedArticleId);
         if (!topic) return;
-        const run = state.agentRuns.find((item) => item.topicId === topic.id) || runTopicChain(topic);
         const slot = findNextFreeSlot();
         if (!slot) {
           setPublishStatus("На этой неделе нет свободных слотов. Освободите слот в таблице или выберите следующую неделю.", "error");
-          return;
-        }
-
-        setPublishStatus("Записываю строку в Google Sheet...", "pending");
-
-        try {
-          await appendArticleToSheet({ topic, run, slot });
-        } catch (error) {
-          setPublishStatus(`Не записано в Google Sheet: ${error.message}`, "error");
           return;
         }
 
@@ -614,12 +618,12 @@
             channel: "Telegram",
             scheduledAt: slot.datetime,
             title: topic.title,
-            postText: run.finalTelegramText,
+            postText: "",
             sourceWorkflow: "astro_weekly_content",
             sourceUrl: topic.source
           });
 
-        setPublishStatus(`Записано в Google Sheet: ${sheetSlot.sheetDate} · ${sheetSlot.sheetTime}`, "success");
+        setPublishStatus(`Отмечено для Codex: занести в Google Sheet на ${sheetSlot.sheetDate} · ${sheetSlot.sheetTime}`, "success");
         renderTopics();
         renderQueue();
       }
@@ -630,14 +634,14 @@
         }
 
         if (!state.agentRuns.length) {
-          agentRunBoard.innerHTML = '<div class="agent-empty">Нажмите «Запустить выбранные», чтобы увидеть цепочку, prompts и результаты каждого агента.</div>';
+          agentRunBoard.innerHTML = '<div class="agent-empty">Ручной режим: сайт не тратит баланс. Нажмите «Запрос Codex», отправьте задание в чат, затем загрузите найденные статьи JSON-ом.</div>';
           if (state.runErrorMessage) {
             agentRunBoard.innerHTML = `<div class="agent-empty error-text">${escapeHtml(state.runErrorMessage)}</div>`;
           } else if (state.runInProgress) {
             agentRunBoard.innerHTML = `<div class="agent-empty">${escapeHtml(state.runProgressMessage || "Идёт генерация поста...")}</div>`;
             agentCycleStatus.textContent = state.runProgressMessage || "идёт генерация...";
           } else if (!agentCycleStatus.textContent.startsWith("Выберите") && !agentCycleStatus.textContent.startsWith("Ошибка")) {
-            agentCycleStatus.textContent = "готов к тесту";
+            agentCycleStatus.textContent = "ручной режим";
           }
           return;
         }
@@ -717,6 +721,98 @@
         window.localStorage.setItem("baurum.researchBank", JSON.stringify(Array.from(bySource.values()).slice(-300)));
       }
 
+      function buildManualSearchRequest() {
+        const excluded = loadResearchBank().map((item) => item.source).filter(Boolean);
+        const preferredSources = preferredSourcesInput.value.trim();
+        return [
+          "Найди для BAURUM 20 новых реальных статей по ведической астрологии / Джйотиш.",
+          "",
+          "Важно:",
+          "- искать именно опубликованные статьи с URL, не придумывать темы самому;",
+          "- не брать календарные строки вроде 'Луна в Раке', если это не полноценная статья;",
+          "- можно брать evergreen-статьи: грахи, накшатры, йоги, даши, упайи, камни, мантры, Экадаши, Пурнима, Амавасья;",
+          "- для каждой статьи дать выжимку 750-900 символов на русском: что говорит источник, ключевые тезисы, почему тема подходит BAURUM;",
+          "- не повторять источники, которые уже показывались;",
+          "- вернуть результат в JSON, чтобы я загрузил его в сайт.",
+          "",
+          "Формат JSON:",
+          '{"topics":[{"kind":"article","title":"...","line":"article · источник · тема","summary":"750-900 символов","article":"750-900 символов","source":"https://..."}]}',
+          preferredSources ? `\nПредпочитаемые источники:\n${preferredSources}` : "",
+          excluded.length ? `\nНе повторять эти URL:\n${excluded.slice(-80).join("\n")}` : ""
+        ]
+          .filter(Boolean)
+          .join("\n");
+      }
+
+      function buildSelectedWritingRequest(selectedTopics) {
+        return [
+          `Напиши для BAURUM ${selectedTopics.length} полноценный(х) пост(а) по выбранным статьям.`,
+          "",
+          "Требования:",
+          "- каждый пост 1800-2600 символов;",
+          "- русский язык, тон baurum: глубокий, живой, авторитетный, без служебных фраз;",
+          "- не копировать источник дословно, а писать оригинальный текст по смыслу статьи;",
+          "- если речь о камнях, не обещать универсальный результат; учитывать карту, качество камня и личную уместность;",
+          "- после согласования занести утвержденные тексты в Google Sheet.",
+          "",
+          "Выбранные источники:",
+          ...selectedTopics.map((topic, index) => [
+            `${index + 1}. ${topic.title}`,
+            `URL: ${topic.source}`,
+            `Выжимка: ${topicPreview(topic)}`
+          ].join("\n"))
+        ].join("\n\n");
+      }
+
+      async function writeToClipboard(value) {
+        try {
+          await navigator.clipboard.writeText(value);
+          return true;
+        } catch {
+          return false;
+        }
+      }
+
+      async function showManualRequest(event) {
+        if (event?.currentTarget) flashButton(event.currentTarget, "Готово");
+        state.manualSearchCount += 1;
+        window.localStorage.setItem("baurum.manualSearchCount", String(state.manualSearchCount));
+        updateManualSearchBadge();
+        const request = buildManualSearchRequest();
+        const copied = await writeToClipboard(request);
+        agentCycleStatus.textContent = copied ? "запрос скопирован" : "запрос готов";
+        agentRunBoard.innerHTML = `
+          <div class="agent-empty">
+            <strong>Запрос для Codex ${escapeHtml(`поиск ${state.manualSearchCount}`)}</strong>
+            <p class="muted">${copied ? "Я скопировал его в буфер. Отправьте мне этот запрос в чат." : "Скопируйте этот запрос и отправьте мне в чат."}</p>
+            <pre>${escapeHtml(request)}</pre>
+          </div>
+        `;
+      }
+
+      function importManualTopics() {
+        let parsed;
+        try {
+          parsed = JSON.parse(manualImportInput.value.trim());
+        } catch (error) {
+          manualImportStatus.textContent = `JSON не прочитан: ${error.message}`;
+          return;
+        }
+        const items = Array.isArray(parsed) ? parsed : parsed.topics;
+        if (!Array.isArray(items) || !items.length) {
+          manualImportStatus.textContent = "В JSON должен быть массив topics.";
+          return;
+        }
+        state.topics = normalizeResearchTopics(items).slice(0, 20);
+        state.agentRuns = [];
+        saveResearchBank(state.topics);
+        manualImportInput.value = "";
+        manualImportStatus.textContent = `Загружено ${state.topics.length} статей. Источники сохранены в локальный банк.`;
+        agentCycleStatus.textContent = `загружено ${state.topics.length} статей`;
+        renderTopics();
+        renderAgentRuns();
+      }
+
       function flashButton(button, label, delay = 900) {
         const original = button.textContent;
         button.textContent = label;
@@ -729,128 +825,26 @@
         }, delay);
       }
 
-      function runTopicChain(topic, rewriteInstruction = "", generatedText = "") {
-        topic.status = "visual";
-        const run = window.BaurumWorkflow.runAgentChain(topic, {
-          preferredSources: preferredSourcesInput.value.trim(),
-          publicationWindow: "1-7 июня 2026",
-          prompts: state.promptOverrides,
-          rewriteInstruction
-        });
-        if (generatedText) {
-          run.finalTelegramText = generatedText;
-          const editorStep = run.steps.find((step) => step.agentId === "editor");
-          if (editorStep?.output) {
-            editorStep.output.finalTelegramText = generatedText;
-            editorStep.output.status = "draft_review";
-          }
-        }
-        state.agentRuns = state.agentRuns.filter((item) => item.topicId !== topic.id).concat(run);
-        return run;
-      }
-
-      async function generateArticleText(topic, rewriteInstruction = "") {
-        if (window.location.protocol === "file:") {
-          throw new Error("Откройте консоль через Vercel или localhost, чтобы работала реальная генерация.");
-        }
-
-        const controller = new AbortController();
-        const timeoutId = window.setTimeout(() => controller.abort(), 65000);
-        const startedAt = Date.now();
-        console.info("[BAURUM] generate-article:start", { title: topic.title, source: topic.source });
-
-        const response = await fetch("/api/generate-article", {
-          method: "POST",
-          credentials: "same-origin",
-          signal: controller.signal,
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            topic,
-            preferredSources: preferredSourcesInput.value.trim(),
-            prompts: state.promptOverrides,
-            rewriteInstruction
-          })
-        }).catch((error) => {
-          if (error.name === "AbortError") {
-            throw new Error("запрос генерации длился больше 65 секунд и был остановлен. Скорее всего, Vercel/OpenAI не успели ответить.");
-          }
-          throw new Error(`сетевая ошибка генерации: ${error.message}`);
-        }).finally(() => {
-          window.clearTimeout(timeoutId);
-        });
-
-        const responseText = await response.text();
-        let result = null;
-        try {
-          result = JSON.parse(responseText);
-        } catch {
-          result = null;
-        }
-
-        console.info("[BAURUM] generate-article:response", {
-          status: response.status,
-          ok: response.ok,
-          ms: Date.now() - startedAt,
-          body: responseText.slice(0, 240)
-        });
-
-        if (!response.ok || !result?.ok) {
-          const responseHint = result?.error || responseText.replace(/\s+/g, " ").slice(0, 220) || "пустой ответ";
-          const authHint = response.status === 401 ? "Vercel требует авторизацию для API. Обновите страницу, войдите в Vercel и попробуйте снова." : responseHint;
-          throw new Error(`HTTP ${response.status}: ${authHint}`);
-        }
-
-        return result.text;
-      }
-
-      async function runRealTopicChain(topic, rewriteInstruction = "") {
-        topic.status = "writing";
-        state.runErrorMessage = "";
-        state.runProgressMessage = `Writing: пишу пост по теме «${topic.title}»...`;
-        agentCycleStatus.textContent = state.runProgressMessage;
-        renderTopics();
-        renderAgentRuns();
-
-        const generatedText = await generateArticleText(topic, rewriteInstruction);
-        return runTopicChain(topic, rewriteInstruction, generatedText);
-      }
-
       async function runSelected(event) {
         if (event?.currentTarget) flashButton(event.currentTarget, "Запускаю");
-        const selected = state.topics.filter((topic) => topic.selected).slice(0, 2);
+        const selected = state.topics.filter((topic) => topic.selected);
         if (!selected.length) {
           agentCycleStatus.textContent = "Выберите хотя бы одну тему перед запуском.";
           renderTopics();
           return;
         }
 
-        state.runInProgress = true;
-        state.runErrorMessage = "";
-        state.runProgressMessage = "Запускаю цепочку...";
-        agentCycleStatus.textContent = "генерация через OpenAI...";
-
-        for (const topic of selected) {
-          try {
-            await runRealTopicChain(topic);
-          } catch (error) {
-            topic.status = "research";
-            state.runInProgress = false;
-            state.runProgressMessage = "";
-            state.runErrorMessage = `Ошибка генерации: ${error.message}`;
-            agentCycleStatus.textContent = state.runErrorMessage;
-            console.error("[BAURUM] generate-article:error", error);
-            renderTopics();
-            renderAgentRuns();
-            return;
-          }
-        }
-
-        state.runInProgress = false;
-        state.runProgressMessage = "";
-        state.runErrorMessage = "";
+        const request = buildSelectedWritingRequest(selected);
+        const copied = await writeToClipboard(request);
+        agentCycleStatus.textContent = copied ? "задание на тексты скопировано" : "задание на тексты готово";
+        agentRunBoard.innerHTML = `
+          <div class="agent-empty">
+            <strong>Задание для Codex</strong>
+            <p class="muted">${copied ? "Я скопировал его в буфер. Отправьте мне этот запрос в чат, и я напишу посты." : "Скопируйте это задание и отправьте мне в чат."}</p>
+            <pre>${escapeHtml(request)}</pre>
+          </div>
+        `;
         renderTopics();
-        renderAgentRuns();
-        agentCycleStatus.textContent = `${selected.length} пост(а) готово. Откройте текст в выбранной карточке.`;
       }
 
       function normalizeResearchTopics(items) {
@@ -870,48 +864,8 @@
         }));
       }
 
-      async function fetchResearchTopics() {
-        if (window.location.protocol === "file:") {
-          throw new Error("Откройте консоль через Vercel или localhost, чтобы работал интернет-поиск.");
-        }
-
-        const response = await fetch("/api/research-topics", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            dateFrom: "2026-06-07",
-            dateTo: "2026-06-30",
-            preferredSources: preferredSourcesInput.value.trim(),
-            excludedSources: loadResearchBank().map((item) => item.source)
-          })
-        });
-        const result = await response.json().catch(() => null);
-
-        if (!response.ok || !result?.ok) {
-          throw new Error(result?.error || "Research failed");
-        }
-
-        return normalizeResearchTopics(result.topics || []);
-      }
-
       async function searchTopics(event) {
-        if (event?.currentTarget) flashButton(event.currentTarget, "Ищу...");
-        agentCycleStatus.textContent = "Research Agent ищет 20 тем в интернете...";
-        try {
-          const researchedTopics = await fetchResearchTopics();
-          if (!researchedTopics.length) {
-            throw new Error("Research Agent не вернул темы");
-          }
-          state.topics = researchedTopics;
-          saveResearchBank(researchedTopics);
-          state.agentRuns = [];
-          agentCycleStatus.textContent = `найдено ${researchedTopics.length} тем`;
-          renderTopics();
-          renderAgentRuns();
-        } catch (error) {
-          agentCycleStatus.textContent = `Ошибка research: ${error.message}`;
-          renderTopics();
-        }
+        await showManualRequest(event);
       }
 
       researchList.addEventListener("click", (event) => {
@@ -983,17 +937,16 @@
 
         if (action === "rewrite-topic") {
           event.preventDefault();
-          const instruction = "Перепиши всю цепочку заново: проверь источник, обнови стратегию, заново напиши текст, отредактируй и подготовь визуал.";
-          generateArticleText(topic, instruction)
-            .then((text) => {
-              runTopicChain(topic, instruction, text);
-              renderTopics();
-              renderAgentRuns();
-              openArticle(topic);
-            })
-            .catch((error) => {
-              agentCycleStatus.textContent = `Ошибка генерации: ${error.message}`;
-            });
+          const request = buildSelectedWritingRequest([topic]);
+          writeToClipboard(request);
+          agentCycleStatus.textContent = "задание для Codex готово";
+          agentRunBoard.innerHTML = `
+            <div class="agent-empty">
+              <strong>Задание для Codex</strong>
+              <p class="muted">Отправьте это в чат, и Codex напишет пост по выбранной статье.</p>
+              <pre>${escapeHtml(request)}</pre>
+            </div>
+          `;
         }
       });
 
@@ -1010,6 +963,8 @@
       document.getElementById("header-start-selected").addEventListener("click", runSelected);
       document.getElementById("search-topics").addEventListener("click", searchTopics);
       document.getElementById("header-search-topics").addEventListener("click", searchTopics);
+      document.getElementById("copy-manual-request").addEventListener("click", showManualRequest);
+      document.getElementById("import-manual-topics").addEventListener("click", importManualTopics);
       savePreferredSources.addEventListener("click", savePreferredSourcesToBrowser);
       sourcePreferencesPanel?.querySelector(".panel-header")?.addEventListener("click", (event) => {
         if (event.target instanceof HTMLElement && event.target.closest("button")) return;
@@ -1019,8 +974,7 @@
       document.getElementById("modal-image").addEventListener("click", () => {
         const topic = state.topics.find((item) => item.id === state.openedArticleId);
         if (!topic) return;
-        const run = state.agentRuns.find((item) => item.topicId === topic.id) || runTopicChain(topic);
-        modalVisual.innerHTML = run.visualAsset?.svg || "<span>Тёплый editorial-визуал сгенерирован</span>";
+        modalVisual.innerHTML = "<span>Ручной режим: Codex подготовит визуал или prompt для изображения в чате после выбора текста.</span>";
         renderTopics();
       });
       document.getElementById("modal-approve").addEventListener("click", approveOpenedArticleToQueue);
@@ -1028,18 +982,9 @@
         const topic = state.topics.find((item) => item.id === state.openedArticleId);
         if (!topic) return;
         const instruction = document.getElementById("modal-rewrite-instruction")?.value.trim() || "Перепиши текст сильнее: меньше общих слов, больше конкретики, спокойный BAURUM-тон.";
-        setPublishStatus("Переписываю через OpenAI...", "pending");
-        generateArticleText(topic, instruction)
-          .then((text) => {
-            runTopicChain(topic, instruction, text);
-            renderTopics();
-            renderAgentRuns();
-            openArticle(topic);
-            setPublishStatus("Текст переписан", "success");
-          })
-          .catch((error) => {
-            setPublishStatus(`Не переписано: ${error.message}`, "error");
-          });
+        const request = `${buildSelectedWritingRequest([topic])}\n\nДополнительная правка пользователя:\n${instruction}`;
+        writeToClipboard(request);
+        setPublishStatus("Задание для Codex скопировано. Отправьте его в чат.", "success");
       });
       modalBody.addEventListener("click", (event) => {
         const target = event.target;
@@ -1064,16 +1009,9 @@
         if (target.dataset.action === "rerun-modal-topic") {
           const topic = state.topics.find((item) => item.id === target.dataset.id);
           if (!topic) return;
-          generateArticleText(topic)
-            .then((text) => {
-              runTopicChain(topic, "", text);
-              renderTopics();
-              renderAgentRuns();
-              openArticle(topic);
-            })
-            .catch((error) => {
-              agentCycleStatus.textContent = `Ошибка генерации: ${error.message}`;
-            });
+          const request = buildSelectedWritingRequest([topic]);
+          writeToClipboard(request);
+          agentCycleStatus.textContent = "задание для Codex готово";
         }
       });
       modal.addEventListener("click", (event) => {
@@ -1082,6 +1020,7 @@
 
       loadPromptOverrides();
       loadPreferredSources();
+      updateManualSearchBadge();
       renderTopics();
       renderQueue();
       renderAgentRuns();
