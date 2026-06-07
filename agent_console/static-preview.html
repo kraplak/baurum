@@ -325,7 +325,7 @@
       }
 
       function topicPreview(topic) {
-        return topic.preview || topic.article || topic.summary;
+        return topic.article || topic.summary || topic.preview || "";
       }
 
       const stepAgentMap = {
@@ -437,10 +437,10 @@
                   </span>
                 </summary>
 	                <div class="research-details">
-                  <p><strong>Содержание источника / идеи:</strong> ${topicPreview(topic)}</p>
-                  <p><strong>Рабочий ракурс:</strong> ${topic.angle}</p>
-                  <p><strong>Риск:</strong> ${topic.risk}</p>
-	                  <p class="source-link"><strong>Источник:</strong> <a href="#">${topic.source}</a></p>
+                  <p><strong>Тип:</strong> ${escapeHtml(topic.kind === "event" ? "событие / транзит" : "статья / источник")}</p>
+                  <p><strong>Выжимка источника:</strong> ${escapeHtml(topicPreview(topic))}</p>
+                  <p><strong>Рабочий ракурс:</strong> ${escapeHtml(topic.angle)}</p>
+	                  <p class="source-link"><strong>Источник:</strong> <a href="${escapeHtml(topic.source)}" target="_blank" rel="noreferrer">${escapeHtml(topic.source)}</a></p>
                     ${renderPromptWorkspace(topic)}
 	                </div>
               </details>
@@ -458,7 +458,7 @@
         if (run) {
           modalBody.innerHTML = `
             <section class="draft-preview">
-              <h3>Финальный Telegram draft</h3>
+              <h3>Готовый пост</h3>
               <div class="draft-body">${escapeHtml(run.finalTelegramText)}</div>
               <div class="field">
                 <label>Инструкция для переписывания</label>
@@ -675,6 +675,30 @@
         sourcePreferencesPanel?.classList.add("collapsed");
       }
 
+      function loadResearchBank() {
+        try {
+          const saved = JSON.parse(window.localStorage.getItem("baurum.researchBank") || "[]");
+          return Array.isArray(saved) ? saved : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function saveResearchBank(topics) {
+        const current = loadResearchBank();
+        const bySource = new Map(current.map((item) => [item.source, item]));
+        topics.forEach((topic) => {
+          if (!topic.source) return;
+          bySource.set(topic.source, {
+            source: topic.source,
+            title: topic.title,
+            kind: topic.kind,
+            foundAt: new Date().toISOString()
+          });
+        });
+        window.localStorage.setItem("baurum.researchBank", JSON.stringify(Array.from(bySource.values()).slice(-300)));
+      }
+
       function flashButton(button, label, delay = 900) {
         const original = button.textContent;
         button.textContent = label;
@@ -768,6 +792,7 @@
           selected: index < 2,
           status: index < 2 ? "selected" : "research",
           title: item.title || `Тема ${index + 1}`,
+          kind: item.kind || "article",
           line: item.line || "real web research · source-based",
           summary: item.summary || "",
           angle: item.angle || "",
@@ -788,7 +813,8 @@
           body: JSON.stringify({
             dateFrom: "2026-06-07",
             dateTo: "2026-06-30",
-            preferredSources: preferredSourcesInput.value.trim()
+            preferredSources: preferredSourcesInput.value.trim(),
+            excludedSources: loadResearchBank().map((item) => item.source)
           })
         });
         const result = await response.json().catch(() => null);
@@ -809,6 +835,7 @@
             throw new Error("Research Agent не вернул темы");
           }
           state.topics = researchedTopics;
+          saveResearchBank(researchedTopics);
           state.agentRuns = [];
           agentCycleStatus.textContent = `найдено ${researchedTopics.length} тем`;
           renderTopics();

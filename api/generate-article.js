@@ -22,7 +22,7 @@ function buildPrompt(payload) {
   const rewriteInstruction = cleanText(payload.rewriteInstruction);
 
   return [
-    "Напиши готовый Telegram-пост для BAURUM на русском языке.",
+    "Напиши готовый пост для BAURUM на русском языке.",
     "",
     "Тон BAURUM:",
     "- уверенный, живой, авторитетный;",
@@ -31,19 +31,21 @@ function buildPrompt(payload) {
     "- без медицинских обещаний и без обещаний удачи всем подряд;",
     "- если речь о камне, подчеркни: нужна натальная карта, качество камня и осознанный подбор;",
     "- не пиши служебные фразы вроде 'для BAURUM важно', 'пост о том', 'хороший материал';",
-    "- не пересказывай источник сухо, сделай пригодный к публикации текст.",
+    "- не пересказывай источник сухо, сделай пригодный к публикации текст;",
+    "- сначала делаем полноценный пост, не короткую Telegram-адаптацию.",
     "",
     "Структура:",
     "1. Заголовок первой строкой.",
-    "2. 4-7 коротких абзацев.",
+    "2. 7-12 коротких абзацев.",
     "3. Конкретный смысл для человека: характер, поведение, решение, энергия планеты.",
     "4. Мягкий переход к камню или консультации, если уместно.",
+    "5. Объем: примерно 1800-2600 символов, без воды.",
     "",
     "Тема:",
     `Название: ${cleanText(topic.title)}`,
-    `Краткое содержание: ${cleanText(topic.summary)}`,
+    `Тип источника: ${cleanText(topic.kind)}`,
+    `Выжимка источника: ${cleanText(topic.article || topic.summary)}`,
     `Угол: ${cleanText(topic.angle)}`,
-    `Риск/ограничение: ${cleanText(topic.risk)}`,
     `Источник: ${cleanText(topic.source)}`,
     preferredSources ? `Предпочитаемые источники/контекст: ${preferredSources}` : "",
     rewriteInstruction ? `Правка пользователя: ${rewriteInstruction}` : "",
@@ -105,7 +107,7 @@ module.exports = async function handler(request, response) {
       model,
       input: prompt,
       temperature: 0.7,
-      max_output_tokens: 1200
+      max_output_tokens: 2200
     })
   });
   const openaiPayload = await openaiResponse.json().catch(() => null);

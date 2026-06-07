@@ -45,6 +45,10 @@ function isLowQualitySplitTopic(topic) {
   );
 }
 
+function isArticleTopic(topic) {
+  return cleanText(topic?.kind).toLowerCase() === "article";
+}
+
 function dayFromIsoDate(value, fallback) {
   const match = cleanText(value).match(/^\d{4}-\d{2}-(\d{2})$/);
   return match ? Number(match[1]) : fallback;
@@ -65,6 +69,7 @@ function extractJuneDays(topic) {
 }
 
 function isInsideRequestedWindow(topic, payload) {
+  if (isArticleTopic(topic)) return true;
   const fromDay = dayFromIsoDate(payload.dateFrom, 7);
   const toDay = dayFromIsoDate(payload.dateTo, 30);
   const days = extractJuneDays(topic);
@@ -74,50 +79,64 @@ function isInsideRequestedWindow(topic, payload) {
 
 function buildPrompt(payload) {
   const preferredSources = cleanText(payload.preferredSources);
+  const excludedSources = Array.isArray(payload.excludedSources)
+    ? payload.excludedSources.map(cleanText).filter(Boolean).slice(0, 120)
+    : [];
   const dateFrom = cleanText(payload.dateFrom) || "2026-06-07";
   const dateTo = cleanText(payload.dateTo) || "2026-06-30";
 
   return [
     "Ты BAURUM Research & Source Agent.",
     "",
-    `Задача: запусти новый web research и найди в интернете 30 реальных актуальных тем для Telegram/блога BAURUM на период ${dateFrom} - ${dateTo}.`,
+    "Задача: запусти новый web research и найди 30 реальных источников для будущих BAURUM-постов.",
     "",
-    "Что искать:",
-    "- реальные статьи, календарные заметки, Panchang/Vedic calendar, Jyotish transit articles, Hindu festival notes;",
-    "- темы про Джйотиш, лунный календарь, Экадаши, Пурниму, Амавасью, транзиты планет, грахи и камни;",
+    "Состав выдачи:",
+    "- 20 тем типа article: реальные статьи, написанные людьми, без обязательной привязки к датам периода;",
+    `- 10 тем типа event: календарные события, Panchang/Vedic calendar, Jyotish transit articles, Hindu festival notes за период ${dateFrom} - ${dateTo};`,
+    "",
+    "Что искать в article:",
+    "- подробные статьи про Джйотиш, грахи, ретроградность, экзальтацию/дебилитацию, накшатры, йоги, даши, упайи, камни, мантры, Экадаши, Пурниму, Амавасью;",
+    "- статьи вроде: что значит ретроградный Юпитер, как проявляется Меркурий в экзальтации, как работает желтый сапфир в традиции, что такое Гаджакесари-йога;",
+    "- это должны быть именно страницы со смысловым текстом, а не короткие календарные строки;",
+    "",
+    "Что искать в event:",
+    "- события в указанном периоде: Экадаши, Пурнима, Амавасья, важные ведические праздники, заметные Jyotish-транзиты;",
+    "",
+    "Общие правила:",
     "- источники должны существовать и иметь URL;",
     "- можно использовать англоязычные источники, но темы вернуть на русском;",
     "- не придумывай события и положения планет;",
     "- не используй заранее заданный seed-list и не повторяй старые демо-темы, если не нашел их заново через web search;",
-    "- каждая тема должна опираться на конкретную найденную страницу, календарное событие или статью;",
+    "- каждая тема должна опираться на конкретную найденную страницу;",
     "- все 30 тем должны быть уникальными: не повторяй одно и то же событие, title, URL или смысл под разными номерами;",
     "- если нашел одно событие на нескольких сайтах, выбери лучший источник и оставь только одну карточку;",
-    "- собери смесь тем: календарные события, Jyotish-транзиты, Экадаши/Пурнима/Амавасья, грахи и камни, образовательные статьи по ведической традиции;",
-    `- не включай события раньше ${dateFrom} и позже ${dateTo};`,
+    `- для kind=event не включай события раньше ${dateFrom} и позже ${dateTo};`,
     "- не делай отдельные карточки вида 'один транзит для разных асцендентов/знаков' — это один источник и одна тема, а не 12 тем;",
     "- не повторяй Jupiter/Guru in Cancer больше одного раза; если эта тема найдена, оставь только лучшую карточку и переходи к другим событиям;",
     "- не возвращай 'служебные QA-карточки', cross-check warnings или внутренние заметки для редакции;",
     "- каждая карточка должна быть пригодна как самостоятельный контент-повод для BAURUM, а не как кусок одной большой статьи;",
-    "- если источник western/tropical, явно пометь риск, но лучше отдавай приоритет Jyotish/sidereal;",
+    "- если источник western/tropical, пометь это в line, но лучше отдавай приоритет Jyotish/sidereal;",
     "- не ограничивайся заранее заданными темами, ищи реальные найденные публикации.",
     preferredSources ? `Предпочитаемые источники от пользователя: ${preferredSources}` : "",
+    excludedSources.length ? `Не используй эти уже найденные URL: ${excludedSources.join(", ")}` : "",
     "",
     "Верни строго JSON без markdown:",
     "{",
     '  "topics": [',
     "    {",
+    '      "kind": "article или event",',
     '      "title": "русское название темы",',
-    '      "line": "тип источника · дата/период · relevance score",',
-    '      "summary": "400-500 символов: что найдено в источнике и почему это может быть темой",',
-    '      "angle": "BAURUM angle: как раскрыть это для аудитории бренда",',
-    '      "risk": "что нельзя обещать / где нужна осторожность",',
+    '      "line": "article/event · источник/система · дата/период если есть · relevance",',
+    '      "summary": "300-500 символов: полноценная выжимка найденной статьи или события. Что там сказано, какие ключевые идеи, почему это может стать постом.",',
+    '      "angle": "как раскрыть это в большом BAURUM-посте",',
+    '      "risk": "короткая техническая пометка, можно пустую строку",',
     '      "source": "https://...",',
-    '      "article": "короткий source card с фактом, датой, системой астрологии и применением"',
+    '      "article": "300-500 символов пересказа источника простым русским языком, без служебных фраз"',
     "    }",
     "  ]",
     "}",
     "",
-    "Нужно ровно 30 уникальных тем. Не возвращай темы без источника. Не возвращай дубликаты."
+    "Нужно ровно 30 уникальных тем: примерно 20 article и 10 event. Не возвращай темы без источника. Не возвращай дубликаты."
   ]
     .filter(Boolean)
     .join("\n");
@@ -170,6 +189,7 @@ const researchTopicsSchema = {
         type: "object",
         additionalProperties: false,
         properties: {
+          kind: { type: "string", enum: ["article", "event"] },
           title: { type: "string" },
           line: { type: "string" },
           summary: { type: "string" },
@@ -178,7 +198,7 @@ const researchTopicsSchema = {
           source: { type: "string" },
           article: { type: "string" }
         },
-        required: ["title", "line", "summary", "angle", "risk", "source", "article"]
+        required: ["kind", "title", "line", "summary", "angle", "risk", "source", "article"]
       }
     }
   },
