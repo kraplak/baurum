@@ -21,6 +21,9 @@ function semanticTopicKey(topic) {
   if ((title.includes("юпитер") || title.includes("jupiter") || title.includes("guru")) && (title.includes("рак") || title.includes("cancer") || title.includes("karka"))) {
     return "jupiter-cancer";
   }
+  if (title.includes("пурнима") || title.includes("полнолуние") || title.includes("purnima") || title.includes("full moon")) {
+    return "purnima";
+  }
   return title
     .split(/[:—-]/)[0]
     .replace(/["'«»()]/g, "")
@@ -30,9 +33,13 @@ function semanticTopicKey(topic) {
 
 function isLowQualitySplitTopic(topic) {
   const title = cleanText(topic?.title).toLowerCase();
+  const line = cleanText(topic?.line).toLowerCase();
   return (
     title.includes("асцендент") ||
     title.includes("ascendant") ||
+    title.includes("вне периода") ||
+    line.includes("вне периода") ||
+    line.includes("· low") ||
     /^луна\s+в\s+/.test(title) ||
     /^moon\s+in\s+/.test(title)
   );
