@@ -34,6 +34,9 @@ function buildPrompt(payload) {
     "- не придумывай события и положения планет;",
     "- не используй заранее заданный seed-list и не повторяй старые демо-темы, если не нашел их заново через web search;",
     "- каждая тема должна опираться на конкретную найденную страницу, календарное событие или статью;",
+    "- все 30 тем должны быть уникальными: не повторяй одно и то же событие, title, URL или смысл под разными номерами;",
+    "- если нашел одно событие на нескольких сайтах, выбери лучший источник и оставь только одну карточку;",
+    "- собери смесь тем: календарные события, Jyotish-транзиты, Экадаши/Пурнима/Амавасья, грахи и камни, образовательные статьи по ведической традиции;",
     "- если источник western/tropical, явно пометь риск, но лучше отдавай приоритет Jyotish/sidereal;",
     "- не ограничивайся заранее заданными темами, ищи реальные найденные публикации.",
     preferredSources ? `Предпочитаемые источники от пользователя: ${preferredSources}` : "",
@@ -53,7 +56,7 @@ function buildPrompt(payload) {
     "  ]",
     "}",
     "",
-    "Нужно ровно 30 тем. Не возвращай темы без источника."
+    "Нужно ровно 30 уникальных тем. Не возвращай темы без источника. Не возвращай дубликаты."
   ]
     .filter(Boolean)
     .join("\n");
@@ -116,7 +119,7 @@ module.exports = async function handler(request, response) {
     return sendJson(response, 400, { ok: false, error: "Invalid JSON body" });
   }
 
-  const model = process.env.OPENAI_RESEARCH_MODEL || process.env.OPENAI_MODEL || "gpt-4.1-mini";
+  const model = process.env.OPENAI_RESEARCH_MODEL || "gpt-4.1";
   const openaiResponse = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
@@ -158,7 +161,17 @@ module.exports = async function handler(request, response) {
     });
   }
 
-  const topics = Array.isArray(parsed?.topics) ? parsed.topics : [];
+  const seenTopics = new Set();
+  const topics = Array.isArray(parsed?.topics)
+    ? parsed.topics.filter((topic) => {
+        const key = [topic?.title, topic?.source].map((value) => cleanText(value).toLowerCase()).join("|");
+        if (!cleanText(topic?.source) || seenTopics.has(key)) {
+          return false;
+        }
+        seenTopics.add(key);
+        return true;
+      })
+    : [];
   return sendJson(response, 200, {
     ok: true,
     model,
