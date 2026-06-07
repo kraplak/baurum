@@ -82,7 +82,16 @@ function parseJsonText(text) {
     .replace(/^```\s*/i, "")
     .replace(/```$/i, "")
     .trim();
-  return JSON.parse(cleaned);
+  try {
+    return JSON.parse(cleaned);
+  } catch (error) {
+    const firstBrace = cleaned.indexOf("{");
+    const lastBrace = cleaned.lastIndexOf("}");
+    if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+      throw error;
+    }
+    return JSON.parse(cleaned.slice(firstBrace, lastBrace + 1));
+  }
 }
 
 module.exports = async function handler(request, response) {
