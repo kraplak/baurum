@@ -97,6 +97,33 @@ function parseJsonText(text) {
   }
 }
 
+const researchTopicsSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    topics: {
+      type: "array",
+      minItems: 20,
+      maxItems: 30,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          title: { type: "string" },
+          line: { type: "string" },
+          summary: { type: "string" },
+          angle: { type: "string" },
+          risk: { type: "string" },
+          source: { type: "string" },
+          article: { type: "string" }
+        },
+        required: ["title", "line", "summary", "angle", "risk", "source", "article"]
+      }
+    }
+  },
+  required: ["topics"]
+};
+
 module.exports = async function handler(request, response) {
   if (request.method !== "POST") {
     response.setHeader("allow", "POST");
@@ -131,6 +158,14 @@ module.exports = async function handler(request, response) {
       input: buildPrompt(payload),
       tools: [{ type: "web_search", search_context_size: "medium" }],
       tool_choice: "required",
+      text: {
+        format: {
+          type: "json_schema",
+          name: "baurum_research_topics",
+          strict: true,
+          schema: researchTopicsSchema
+        }
+      },
       temperature: 0.4,
       max_output_tokens: 8000
     })
