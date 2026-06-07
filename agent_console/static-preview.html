@@ -98,12 +98,12 @@
                 <h2 class="panel-title">Темы ресёрча</h2>
                 <p class="panel-note">Недельный ресёрч с приоритетом Джйотиш. Выберите 5–7 тем для блога; сильные невыбранные темы останутся в банке.</p>
               </div>
-              <span class="badge gold" id="found-count">10 из 30 показано</span>
+              <span class="badge gold" id="found-count">0 из 30 показано</span>
             </div>
 
             <div class="selection-toolbar">
               <div>
-                <strong id="selected-count">Выбрано: 2 / 7</strong>
+                <strong id="selected-count">Выбрано: 0 / 7</strong>
                 <p class="muted">Нажмите «Поиск», чтобы найти новые 30 реальных тем в интернете. Потом выберите нужные и запустите цепочку.</p>
               </div>
               <div class="topbar-actions">
@@ -169,7 +169,7 @@
 
     <script src="./app/workflow-simulator.js"></script>
     <script>
-      const topics = [
+      const topics = false && [
         {
           id: "guru-gochar-cancer-verified",
           index: 1,
@@ -277,7 +277,7 @@
       ];
 
       const state = {
-        topics: topics.map((topic) => ({ ...topic })),
+        topics: [],
         openedArticleId: null,
         agentRuns: [],
         promptOverrides: {},
@@ -413,6 +413,11 @@
       function renderTopics() {
         foundCount.textContent = `${state.topics.length} из 30 показано`;
         selectedCount.textContent = `Выбрано: ${state.topics.filter((topic) => topic.selected).length} / 7`;
+
+        if (!state.topics.length) {
+          researchList.innerHTML = '<div class="agent-empty">Нажмите «Поиск», чтобы запустить новый web research и получить 30 реальных тем.</div>';
+          return;
+        }
 
         researchList.innerHTML = state.topics
           .map(

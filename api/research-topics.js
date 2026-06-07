@@ -16,6 +16,23 @@ function cleanText(value) {
   return String(value || "").trim();
 }
 
+function semanticTopicKey(topic) {
+  const title = cleanText(topic?.title).toLowerCase();
+  if ((title.includes("юпитер") || title.includes("jupiter") || title.includes("guru")) && (title.includes("рак") || title.includes("cancer") || title.includes("karka"))) {
+    return "jupiter-cancer";
+  }
+  return title
+    .split(/[:—-]/)[0]
+    .replace(/["'«»()]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isLowQualitySplitTopic(topic) {
+  const title = cleanText(topic?.title).toLowerCase();
+  return title.includes("асцендент") || title.includes("ascendant");
+}
+
 function buildPrompt(payload) {
   const preferredSources = cleanText(payload.preferredSources);
   const dateFrom = cleanText(payload.dateFrom) || "2026-06-07";
@@ -37,6 +54,11 @@ function buildPrompt(payload) {
     "- все 30 тем должны быть уникальными: не повторяй одно и то же событие, title, URL или смысл под разными номерами;",
     "- если нашел одно событие на нескольких сайтах, выбери лучший источник и оставь только одну карточку;",
     "- собери смесь тем: календарные события, Jyotish-транзиты, Экадаши/Пурнима/Амавасья, грахи и камни, образовательные статьи по ведической традиции;",
+    `- не включай события раньше ${dateFrom} и позже ${dateTo};`,
+    "- не делай отдельные карточки вида 'один транзит для разных асцендентов/знаков' — это один источник и одна тема, а не 12 тем;",
+    "- не повторяй Jupiter/Guru in Cancer больше одного раза; если эта тема найдена, оставь только лучшую карточку и переходи к другим событиям;",
+    "- не возвращай 'служебные QA-карточки', cross-check warnings или внутренние заметки для редакции;",
+    "- каждая карточка должна быть пригодна как самостоятельный контент-повод для BAURUM, а не как кусок одной большой статьи;",
     "- если источник western/tropical, явно пометь риск, но лучше отдавай приоритет Jyotish/sidereal;",
     "- не ограничивайся заранее заданными темами, ищи реальные найденные публикации.",
     preferredSources ? `Предпочитаемые источники от пользователя: ${preferredSources}` : "",
@@ -197,13 +219,16 @@ module.exports = async function handler(request, response) {
   }
 
   const seenTopics = new Set();
+  const seenSemanticTopics = new Set();
   const topics = Array.isArray(parsed?.topics)
     ? parsed.topics.filter((topic) => {
         const key = [topic?.title, topic?.source].map((value) => cleanText(value).toLowerCase()).join("|");
-        if (!cleanText(topic?.source) || seenTopics.has(key)) {
+        const semanticKey = semanticTopicKey(topic);
+        if (!cleanText(topic?.source) || seenTopics.has(key) || seenSemanticTopics.has(semanticKey) || isLowQualitySplitTopic(topic)) {
           return false;
         }
         seenTopics.add(key);
+        seenSemanticTopics.add(semanticKey);
         return true;
       })
     : [];
