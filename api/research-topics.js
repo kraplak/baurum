@@ -117,7 +117,8 @@ module.exports = async function handler(request, response) {
     body: JSON.stringify({
       model,
       input: buildPrompt(payload),
-      tools: [{ type: "web_search_preview", search_context_size: "medium" }],
+      tools: [{ type: "web_search", search_context_size: "medium" }],
+      tool_choice: "required",
       temperature: 0.4,
       max_output_tokens: 8000
     })
@@ -125,9 +126,13 @@ module.exports = async function handler(request, response) {
   const openaiPayload = await openaiResponse.json().catch(() => null);
 
   if (!openaiResponse.ok) {
+    console.error("OpenAI research failed", {
+      status: openaiResponse.status,
+      error: openaiPayload?.error
+    });
     return sendJson(response, openaiResponse.status, {
       ok: false,
-      error: "OpenAI research failed",
+      error: openaiPayload?.error?.message || "OpenAI research failed",
       openai: openaiPayload
     });
   }
