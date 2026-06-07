@@ -73,6 +73,14 @@ function extractOutputText(payload) {
   return chunks.join("\n").trim();
 }
 
+function formatOpenAiError(status, payload) {
+  const message = payload?.error?.message || "OpenAI generation failed";
+  if (status === 429) {
+    return "У подключенного OpenAI API key нет доступной квоты. Проверьте billing/credits в OpenAI Platform или вставьте другой ключ в Vercel Environment Variables и redeploy.";
+  }
+  return message;
+}
+
 module.exports = async function handler(request, response) {
   if (request.method !== "POST") {
     response.setHeader("allow", "POST");
@@ -115,7 +123,7 @@ module.exports = async function handler(request, response) {
   if (!openaiResponse.ok) {
     return sendJson(response, openaiResponse.status, {
       ok: false,
-      error: openaiPayload?.error?.message || "OpenAI generation failed",
+      error: formatOpenAiError(openaiResponse.status, openaiPayload),
       openai: openaiPayload
     });
   }

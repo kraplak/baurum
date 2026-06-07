@@ -179,6 +179,14 @@ function parseJsonText(text) {
   }
 }
 
+function formatOpenAiError(status, payload) {
+  const message = payload?.error?.message || "OpenAI research failed";
+  if (status === 429) {
+    return "У подключенного OpenAI API key нет доступной квоты. Проверьте billing/credits в OpenAI Platform или вставьте другой ключ в Vercel Environment Variables и redeploy.";
+  }
+  return message;
+}
+
 const researchTopicsSchema = {
   type: "object",
   additionalProperties: false,
@@ -262,7 +270,7 @@ module.exports = async function handler(request, response) {
     });
     return sendJson(response, openaiResponse.status, {
       ok: false,
-      error: openaiPayload?.error?.message || "OpenAI research failed",
+      error: formatOpenAiError(openaiResponse.status, openaiPayload),
       openai: openaiPayload
     });
   }
