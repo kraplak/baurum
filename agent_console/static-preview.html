@@ -438,9 +438,8 @@
                 </summary>
 	                <div class="research-details">
                   <p><strong>Тип:</strong> ${escapeHtml(topic.kind === "event" ? "событие / транзит" : "статья / источник")}</p>
-                  <p><strong>Выжимка источника:</strong> ${escapeHtml(topicPreview(topic))}</p>
-                  <p><strong>Рабочий ракурс:</strong> ${escapeHtml(topic.angle)}</p>
-	                  <p class="source-link"><strong>Источник:</strong> <a href="${escapeHtml(topic.source)}" target="_blank" rel="noreferrer">${escapeHtml(topic.source)}</a></p>
+                  <p><strong>Подробная выжимка источника:</strong> ${escapeHtml(topicPreview(topic))}</p>
+	                  <p class="source-link"><strong>Источник:</strong> <a href="${escapeHtml(topic.source)}" target="_blank" rel="noreferrer" data-action="open-source" data-id="${topic.id}">${escapeHtml(topic.source)}</a></p>
                     ${renderPromptWorkspace(topic)}
 	                </div>
               </details>
@@ -767,6 +766,13 @@
       async function runSelected(event) {
         if (event?.currentTarget) flashButton(event.currentTarget, "Запускаю");
         const selected = state.topics.filter((topic) => topic.selected).slice(0, 2);
+        if (!selected.length) {
+          agentCycleStatus.textContent = "Выберите хотя бы одну тему перед запуском.";
+          renderTopics();
+          renderAgentRuns();
+          return;
+        }
+
         agentCycleStatus.textContent = "генерация через OpenAI...";
 
         for (const topic of selected) {
@@ -783,14 +789,16 @@
 
         renderTopics();
         renderAgentRuns();
+        agentCycleStatus.textContent = `${selected.length} пост(а) готово`;
+        openArticle(selected[0]);
       }
 
       function normalizeResearchTopics(items) {
         return items.map((item, index) => ({
           id: `research-${Date.now()}-${index + 1}`,
           index: index + 1,
-          selected: index < 2,
-          status: index < 2 ? "selected" : "research",
+          selected: false,
+          status: "research",
           title: item.title || `Тема ${index + 1}`,
           kind: item.kind || "article",
           line: item.line || "real web research · source-based",
@@ -870,6 +878,11 @@
           event.preventDefault();
           flashButton(target, "Открываю", 500);
           openArticle(topic);
+        }
+
+        if (action === "open-source") {
+          event.preventDefault();
+          window.open(topic.source, "_blank", "noopener,noreferrer");
         }
 
         if (action === "inspect-step") {

@@ -115,7 +115,7 @@ module.exports = async function handler(request, response) {
   if (!openaiResponse.ok) {
     return sendJson(response, openaiResponse.status, {
       ok: false,
-      error: "OpenAI generation failed",
+      error: openaiPayload?.error?.message || "OpenAI generation failed",
       openai: openaiPayload
     });
   }
