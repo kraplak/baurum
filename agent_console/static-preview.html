@@ -283,6 +283,7 @@
         promptOverrides: {},
         runInProgress: false,
         runProgressMessage: "",
+        runErrorMessage: "",
         publishingQueue: [
           {
             contentId: "lunar-day-seed-001",
@@ -624,18 +625,24 @@
       }
 
       function renderAgentRuns() {
+        if (state.runErrorMessage) {
+          agentCycleStatus.textContent = state.runErrorMessage;
+        }
+
         if (!state.agentRuns.length) {
           agentRunBoard.innerHTML = '<div class="agent-empty">Нажмите «Запустить выбранные», чтобы увидеть цепочку, prompts и результаты каждого агента.</div>';
-          if (state.runInProgress) {
+          if (state.runErrorMessage) {
+            agentRunBoard.innerHTML = `<div class="agent-empty error-text">${escapeHtml(state.runErrorMessage)}</div>`;
+          } else if (state.runInProgress) {
             agentRunBoard.innerHTML = `<div class="agent-empty">${escapeHtml(state.runProgressMessage || "Идёт генерация поста...")}</div>`;
             agentCycleStatus.textContent = state.runProgressMessage || "идёт генерация...";
-          } else if (!agentCycleStatus.textContent.startsWith("Выберите")) {
+          } else if (!agentCycleStatus.textContent.startsWith("Выберите") && !agentCycleStatus.textContent.startsWith("Ошибка")) {
             agentCycleStatus.textContent = "готов к тесту";
           }
           return;
         }
 
-        if (!state.runInProgress) {
+        if (!state.runInProgress && !state.runErrorMessage) {
           agentCycleStatus.textContent = `${state.agentRuns.length} цикл(а) готово`;
         }
         agentRunBoard.innerHTML = state.agentRuns
@@ -666,6 +673,9 @@
             `;
           })
           .join("");
+        if (state.runErrorMessage) {
+          agentRunBoard.insertAdjacentHTML("afterbegin", `<div class="agent-empty error-text">${escapeHtml(state.runErrorMessage)}</div>`);
+        }
       }
 
       function loadPreferredSources() {
@@ -744,8 +754,15 @@
           throw new Error("Откройте консоль через Vercel или localhost, чтобы работала реальная генерация.");
         }
 
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), 65000);
+        const startedAt = Date.now();
+        console.info("[BAURUM] generate-article:start", { title: topic.title, source: topic.source });
+
         const response = await fetch("/api/generate-article", {
           method: "POST",
+          credentials: "same-origin",
+          signal: controller.signal,
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             topic,
@@ -753,11 +770,34 @@
             prompts: state.promptOverrides,
             rewriteInstruction
           })
+        }).catch((error) => {
+          if (error.name === "AbortError") {
+            throw new Error("запрос генерации длился больше 65 секунд и был остановлен. Скорее всего, Vercel/OpenAI не успели ответить.");
+          }
+          throw new Error(`сетевая ошибка генерации: ${error.message}`);
+        }).finally(() => {
+          window.clearTimeout(timeoutId);
         });
-        const result = await response.json().catch(() => null);
+
+        const responseText = await response.text();
+        let result = null;
+        try {
+          result = JSON.parse(responseText);
+        } catch {
+          result = null;
+        }
+
+        console.info("[BAURUM] generate-article:response", {
+          status: response.status,
+          ok: response.ok,
+          ms: Date.now() - startedAt,
+          body: responseText.slice(0, 240)
+        });
 
         if (!response.ok || !result?.ok) {
-          throw new Error(result?.error || "OpenAI generation failed");
+          const responseHint = result?.error || responseText.replace(/\s+/g, " ").slice(0, 220) || "пустой ответ";
+          const authHint = response.status === 401 ? "Vercel требует авторизацию для API. Обновите страницу, войдите в Vercel и попробуйте снова." : responseHint;
+          throw new Error(`HTTP ${response.status}: ${authHint}`);
         }
 
         return result.text;
@@ -765,6 +805,7 @@
 
       async function runRealTopicChain(topic, rewriteInstruction = "") {
         topic.status = "writing";
+        state.runErrorMessage = "";
         state.runProgressMessage = `Writing: пишу пост по теме «${topic.title}»...`;
         agentCycleStatus.textContent = state.runProgressMessage;
         renderTopics();
@@ -784,6 +825,7 @@
         }
 
         state.runInProgress = true;
+        state.runErrorMessage = "";
         state.runProgressMessage = "Запускаю цепочку...";
         agentCycleStatus.textContent = "генерация через OpenAI...";
 
@@ -794,7 +836,9 @@
             topic.status = "research";
             state.runInProgress = false;
             state.runProgressMessage = "";
-            agentCycleStatus.textContent = `Ошибка генерации: ${error.message}`;
+            state.runErrorMessage = `Ошибка генерации: ${error.message}`;
+            agentCycleStatus.textContent = state.runErrorMessage;
+            console.error("[BAURUM] generate-article:error", error);
             renderTopics();
             renderAgentRuns();
             return;
@@ -803,6 +847,7 @@
 
         state.runInProgress = false;
         state.runProgressMessage = "";
+        state.runErrorMessage = "";
         renderTopics();
         renderAgentRuns();
         agentCycleStatus.textContent = `${selected.length} пост(а) готово. Откройте текст в выбранной карточке.`;
