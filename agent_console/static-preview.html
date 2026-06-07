@@ -98,13 +98,13 @@
                 <h2 class="panel-title">Темы ресёрча</h2>
                 <p class="panel-note">Недельный ресёрч с приоритетом Джйотиш. Выберите 5–7 тем для блога; сильные невыбранные темы останутся в банке.</p>
               </div>
-              <span class="badge gold" id="found-count">0 из 30 показано</span>
+              <span class="badge gold" id="found-count">0 из 20 показано</span>
             </div>
 
             <div class="selection-toolbar">
               <div>
                 <strong id="selected-count">Выбрано: 0 / 7</strong>
-                <p class="muted">Нажмите «Поиск», чтобы найти новые 30 реальных тем в интернете. Потом выберите нужные и запустите цепочку.</p>
+                <p class="muted">Нажмите «Поиск», чтобы найти 20 новых реальных тем в интернете. Потом выберите нужные и запустите цепочку.</p>
               </div>
               <div class="topbar-actions">
                 <button class="secondary-button" id="search-topics">Поиск</button>
@@ -411,11 +411,11 @@
       }
 
       function renderTopics() {
-        foundCount.textContent = `${state.topics.length} из 30 показано`;
+        foundCount.textContent = `${state.topics.length} из 20 показано`;
         selectedCount.textContent = `Выбрано: ${state.topics.filter((topic) => topic.selected).length} / 7`;
 
         if (!state.topics.length) {
-          researchList.innerHTML = '<div class="agent-empty">Нажмите «Поиск», чтобы запустить новый web research и получить 30 реальных тем.</div>';
+          researchList.innerHTML = '<div class="agent-empty">Нажмите «Поиск», чтобы запустить новый web research и получить 20 реальных тем.</div>';
           return;
         }
 
@@ -789,8 +789,7 @@
 
         renderTopics();
         renderAgentRuns();
-        agentCycleStatus.textContent = `${selected.length} пост(а) готово`;
-        openArticle(selected[0]);
+        agentCycleStatus.textContent = `${selected.length} пост(а) готово. Откройте текст в выбранной карточке.`;
       }
 
       function normalizeResearchTopics(items) {
@@ -836,7 +835,7 @@
 
       async function searchTopics(event) {
         if (event?.currentTarget) flashButton(event.currentTarget, "Ищу...");
-        agentCycleStatus.textContent = "Research Agent ищет 30 тем в интернете...";
+        agentCycleStatus.textContent = "Research Agent ищет 20 тем в интернете...";
         try {
           const researchedTopics = await fetchResearchTopics();
           if (!researchedTopics.length) {
