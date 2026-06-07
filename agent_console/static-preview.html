@@ -756,14 +756,62 @@
         renderAgentRuns();
       }
 
-      function refreshUnselected(event) {
-        if (event?.currentTarget) flashButton(event.currentTarget, "Обновлено");
-        state.topics.forEach((topic) => {
-          if (!topic.selected) {
-            topic.status = "research";
-          }
+      function normalizeResearchTopics(items) {
+        return items.map((item, index) => ({
+          id: `research-${Date.now()}-${index + 1}`,
+          index: index + 1,
+          selected: index < 2,
+          status: index < 2 ? "selected" : "research",
+          title: item.title || `Тема ${index + 1}`,
+          line: item.line || "real web research · source-based",
+          summary: item.summary || "",
+          angle: item.angle || "",
+          risk: item.risk || "",
+          source: item.source || "",
+          article: item.article || item.summary || ""
+        }));
+      }
+
+      async function fetchResearchTopics() {
+        if (window.location.protocol === "file:") {
+          throw new Error("Откройте консоль через Vercel или localhost, чтобы работал интернет-поиск.");
+        }
+
+        const response = await fetch("/api/research-topics", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            dateFrom: "2026-06-07",
+            dateTo: "2026-06-30",
+            preferredSources: preferredSourcesInput.value.trim()
+          })
         });
-        renderTopics();
+        const result = await response.json().catch(() => null);
+
+        if (!response.ok || !result?.ok) {
+          throw new Error(result?.error || "Research failed");
+        }
+
+        return normalizeResearchTopics(result.topics || []);
+      }
+
+      async function refreshUnselected(event) {
+        if (event?.currentTarget) flashButton(event.currentTarget, "Ищу...");
+        agentCycleStatus.textContent = "Research Agent ищет 30 тем в интернете...";
+        try {
+          const researchedTopics = await fetchResearchTopics();
+          if (!researchedTopics.length) {
+            throw new Error("Research Agent не вернул темы");
+          }
+          state.topics = researchedTopics;
+          state.agentRuns = [];
+          agentCycleStatus.textContent = `найдено ${researchedTopics.length} тем`;
+          renderTopics();
+          renderAgentRuns();
+        } catch (error) {
+          agentCycleStatus.textContent = `Ошибка research: ${error.message}`;
+          renderTopics();
+        }
       }
 
       researchList.addEventListener("click", (event) => {

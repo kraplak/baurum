@@ -131,6 +131,23 @@ OPENAI_MODEL=gpt-4.1-mini
 
 `OPENAI_MODEL` is optional. The default is `gpt-4.1-mini`.
 
+## Real Research
+
+`Обновить невыбранные` calls `/api/research-topics`.
+
+That endpoint uses OpenAI web search to find 30 real source-based topics for
+the publication window, currently June 7-30, 2026. It returns the topic list
+directly into the UI, replacing the static seed list.
+
+Required:
+
+```text
+OPENAI_API_KEY=sk-...
+OPENAI_RESEARCH_MODEL=gpt-4.1-mini
+```
+
+`OPENAI_RESEARCH_MODEL` is optional and falls back to `OPENAI_MODEL`.
+
 ## Telegram Publishing Smoke Test
 
 The repo still has a direct publish adapter at `/api/publish-telegram`.
