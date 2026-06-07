@@ -30,7 +30,39 @@ function semanticTopicKey(topic) {
 
 function isLowQualitySplitTopic(topic) {
   const title = cleanText(topic?.title).toLowerCase();
-  return title.includes("асцендент") || title.includes("ascendant");
+  return (
+    title.includes("асцендент") ||
+    title.includes("ascendant") ||
+    /^луна\s+в\s+/.test(title) ||
+    /^moon\s+in\s+/.test(title)
+  );
+}
+
+function dayFromIsoDate(value, fallback) {
+  const match = cleanText(value).match(/^\d{4}-\d{2}-(\d{2})$/);
+  return match ? Number(match[1]) : fallback;
+}
+
+function extractJuneDays(topic) {
+  const text = [topic?.title, topic?.line, topic?.summary, topic?.article].map(cleanText).join(" ");
+  const days = [];
+  const pattern = /(\d{1,2})(?:\s*[–-]\s*(\d{1,2}))?\s*(?:июня|june)/gi;
+  let match;
+  while ((match = pattern.exec(text))) {
+    days.push(Number(match[1]));
+    if (match[2]) {
+      days.push(Number(match[2]));
+    }
+  }
+  return days.filter((day) => Number.isFinite(day));
+}
+
+function isInsideRequestedWindow(topic, payload) {
+  const fromDay = dayFromIsoDate(payload.dateFrom, 7);
+  const toDay = dayFromIsoDate(payload.dateTo, 30);
+  const days = extractJuneDays(topic);
+  if (!days.length) return true;
+  return Math.max(...days) >= fromDay && Math.min(...days) <= toDay;
 }
 
 function buildPrompt(payload) {
@@ -224,7 +256,13 @@ module.exports = async function handler(request, response) {
     ? parsed.topics.filter((topic) => {
         const key = [topic?.title, topic?.source].map((value) => cleanText(value).toLowerCase()).join("|");
         const semanticKey = semanticTopicKey(topic);
-        if (!cleanText(topic?.source) || seenTopics.has(key) || seenSemanticTopics.has(semanticKey) || isLowQualitySplitTopic(topic)) {
+        if (
+          !cleanText(topic?.source) ||
+          seenTopics.has(key) ||
+          seenSemanticTopics.has(semanticKey) ||
+          isLowQualitySplitTopic(topic) ||
+          !isInsideRequestedWindow(topic, payload)
+        ) {
           return false;
         }
         seenTopics.add(key);
