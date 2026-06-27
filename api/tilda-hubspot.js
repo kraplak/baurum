@@ -139,6 +139,13 @@ module.exports = async function handler(request, response) {
   }
 
   const email = first(payload, ["Email", "email", "E-mail", "Contact e-mail"]);
+  const isConnectionProbe =
+    Object.keys(payload).length === 0 ||
+    Object.hasOwn(payload, "test") ||
+    !first(payload, ["Name", "name", "Phone", "phone", "formname", "tildaspec-formname"]);
+  if (!email && isConnectionProbe) {
+    return sendJson(response, 200, { ok: true, probe: true });
+  }
   if (!email || !email.includes("@")) {
     return sendJson(response, 400, { ok: false, error: "A valid email is required" });
   }
