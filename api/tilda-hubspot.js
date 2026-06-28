@@ -34,11 +34,28 @@ function requestType(payload) {
   if (/jyotish|natal|натал/.test(form)) return "natal_chart";
   if (/special|custom|кольц|ring/.test(form)) return "special_order";
   if (/subscribe|newsletter|подпис/.test(form)) return "newsletter";
-  return "general_inquiry";
+
+  const hasBirthData = first(payload, [
+    "Date of birth", "Дата рождения", "Time of birth", "Time", "Время рождения",
+    "Place", "City", "Место рождения", "Город"
+  ]);
+  if (hasBirthData) return "natal_chart";
+
+  const hasOrderData = first(payload, [
+    "Design", "Дизайн", "ring metal", "Metal", "Металл", "Gemstone", "Камень",
+    "Cut", "Quality", "Ct", "Your additional comment"
+  ]);
+  if (hasOrderData) return "special_order";
+
+  const hasOnlyEmail = first(payload, ["Email", "email", "E-mail", "Contact e-mail"]) &&
+    !first(payload, ["Name", "name", "Имя", "Phone", "phone", "Телефон"]);
+  if (hasOnlyEmail) return "newsletter";
+
+  return "product_inquiry";
 }
 
 function language(payload) {
-  const page = first(payload, ["referrer", "page", "page_url"]);
+  const page = first(payload, ["referrer", "referer", "page", "page_url", "form-spec-referer"]);
   if (/\/ru(?:\/|$|#)/i.test(page)) return "ru";
   if (/\/en(?:\/|$|#)/i.test(page)) return "en";
   return "en";
@@ -105,7 +122,7 @@ async function createDeal(contactId, payload, type, requestId) {
         pipeline: "default",
         dealstage: "appointmentscheduled",
         baurum_request_type: type,
-        baurum_source_page: first(payload, ["referrer", "page", "page_url"]),
+        baurum_source_page: first(payload, ["referrer", "referer", "page", "page_url", "form-spec-referer"]),
         baurum_tilda_request_id: requestId
       },
       associations: [{
@@ -139,10 +156,7 @@ module.exports = async function handler(request, response) {
   }
 
   const email = first(payload, ["Email", "email", "E-mail", "Contact e-mail"]);
-  const isConnectionProbe =
-    Object.keys(payload).length === 0 ||
-    Object.hasOwn(payload, "test") ||
-    !first(payload, ["Name", "name", "Phone", "phone", "formname", "tildaspec-formname"]);
+  const isConnectionProbe = Object.keys(payload).length === 0 || Object.hasOwn(payload, "test");
   if (!email && isConnectionProbe) {
     return sendJson(response, 200, { ok: true, probe: true });
   }
@@ -156,7 +170,7 @@ module.exports = async function handler(request, response) {
     firstname: first(payload, ["Name", "name", "Имя"]),
     phone: first(payload, ["Phone", "phone", "Телефон"]),
     baurum_request_type: type,
-    baurum_page_url: first(payload, ["referrer", "page", "page_url"]),
+    baurum_page_url: first(payload, ["referrer", "referer", "page", "page_url", "form-spec-referer"]),
     baurum_language: language(payload),
     baurum_birth_date: first(payload, ["Date of birth", "Дата рождения"]),
     baurum_birth_time: first(payload, ["Time of birth", "Time", "Время рождения"]),
