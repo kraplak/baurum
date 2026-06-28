@@ -29,6 +29,18 @@ function first(payload, names) {
   return "";
 }
 
+function specialOrderData(payload) {
+  return {
+    design: first(payload, ["Design", "Дизайн"]),
+    metal: first(payload, ["ring metal", "Ring metal", "ring_metal", "Metal", "Металл"]),
+    gemstone: first(payload, ["Gemstone", "Камень"]),
+    cut: first(payload, ["Cut", "Огранка"]),
+    quality: first(payload, ["Quality", "Качество"]),
+    carat: first(payload, ["Ct", "Carat", "Карат"]),
+    comment: first(payload, ["Your additional comment", "Comment", "Комментарий"])
+  };
+}
+
 function requestType(payload) {
   const form = first(payload, ["formname", "tildaspec-formname", "Form name"]).toLowerCase();
   if (/jyotish|natal|натал/.test(form)) return "natal_chart";
@@ -114,17 +126,35 @@ async function createDeal(contactId, payload, type, requestId) {
 
   const name = first(payload, ["Name", "name", "Имя"]) || first(payload, ["Email", "email"]);
   const formName = first(payload, ["formname", "tildaspec-formname", "Form name"]) || "Website inquiry";
+  const order = specialOrderData(payload);
+  const dealLabel = type === "special_order"
+    ? "Special order"
+    : type === "natal_chart"
+      ? "Jyotish consultation"
+      : formName;
+  const properties = {
+    dealname: `${dealLabel} - ${name}`,
+    pipeline: "default",
+    dealstage: "appointmentscheduled",
+    baurum_request_type: type,
+    baurum_source_page: first(payload, ["referrer", "referer", "page", "page_url", "form-spec-referer"]),
+    baurum_tilda_request_id: requestId,
+    baurum_design: order.design,
+    baurum_metal: order.metal,
+    baurum_gemstone: order.gemstone,
+    baurum_cut: order.cut,
+    baurum_quality: order.quality,
+    baurum_carat: order.carat,
+    baurum_client_comment: order.comment
+  };
+  Object.keys(properties).forEach((key) => {
+    if (!properties[key]) delete properties[key];
+  });
+
   return hubspot("/crm/v3/objects/deals", {
     method: "POST",
     body: JSON.stringify({
-      properties: {
-        dealname: `${formName} - ${name}`,
-        pipeline: "default",
-        dealstage: "appointmentscheduled",
-        baurum_request_type: type,
-        baurum_source_page: first(payload, ["referrer", "referer", "page", "page_url", "form-spec-referer"]),
-        baurum_tilda_request_id: requestId
-      },
+      properties,
       associations: [{
         to: { id: contactId },
         types: [{ associationCategory: "HUBSPOT_DEFINED", associationTypeId: 3 }]
@@ -166,6 +196,7 @@ module.exports = async function handler(request, response) {
 
   const type = requestType(payload);
   const requestId = first(payload, ["requestid", "tranid", "tilda_request_id"]);
+  const order = specialOrderData(payload);
   const contactProperties = {
     firstname: first(payload, ["Name", "name", "Имя"]),
     phone: first(payload, ["Phone", "phone", "Телефон"]),
@@ -175,9 +206,9 @@ module.exports = async function handler(request, response) {
     baurum_birth_date: first(payload, ["Date of birth", "Дата рождения"]),
     baurum_birth_time: first(payload, ["Time of birth", "Time", "Время рождения"]),
     baurum_birth_city: first(payload, ["Place", "City", "Место рождения", "Город"]),
-    baurum_preferred_design: first(payload, ["Design", "Дизайн"]),
-    baurum_preferred_metal: first(payload, ["ring metal", "Metal", "Металл"]),
-    baurum_preferred_gemstone: first(payload, ["Gemstone", "Камень"])
+    baurum_preferred_design: order.design,
+    baurum_preferred_metal: order.metal,
+    baurum_preferred_gemstone: order.gemstone
   };
 
   Object.keys(contactProperties).forEach((key) => {
@@ -194,4 +225,4 @@ module.exports = async function handler(request, response) {
   }
 };
 
-module.exports._test = { requestType, language, first };
+module.exports._test = { requestType, language, first, specialOrderData };
