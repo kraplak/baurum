@@ -47,9 +47,9 @@ function requestType(payload) {
   ]);
   if (hasOrderData) return "special_order";
 
-  const hasOnlyEmail = first(payload, ["Email", "email", "E-mail", "Contact e-mail"]) &&
-    !first(payload, ["Name", "name", "Имя", "Phone", "phone", "Телефон"]);
-  if (hasOnlyEmail) return "newsletter";
+  const hasSubscriptionContact = first(payload, ["Email", "email", "E-mail", "Contact e-mail"]) &&
+    !first(payload, ["Phone", "phone", "Телефон"]);
+  if (hasSubscriptionContact) return "newsletter";
 
   return "product_inquiry";
 }
